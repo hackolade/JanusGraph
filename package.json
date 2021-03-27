@@ -1,0 +1,47 @@
+{
+    "name": "JanusGraph",
+    "version": "0.0.1",
+    "versionDate": "2021-03-27",
+    "author": "hackolade",
+    "engines": {
+        "hackolade": "4.3.14",
+        "hackoladePlugin": "1.0.0"
+    },
+    "contributes": {
+        "target": {
+            "applicationTarget": "JanusGraph",
+            "title": "JanusGraph",
+			"versions": [
+			"0.5.x"
+			]
+		},
+        "features": {
+            "jaySchemaHasRequiredPatternField": false,
+            "nestedCollections": {
+                "isVirtual":true,
+                "hasMultipleParents":true
+            },
+            "graphDB": true,
+            "relationships": {
+                "connectOnEntityLevel": true,
+                "hasData": true
+            },
+            "enableForwardEngineering": {
+				"jsonDocument": true,
+				"jsonSchema": true,
+				"excel": true,
+				"plugin": true
+			},
+			"enableReverseEngineering": {
+				"jsonDocument": true,
+				"jsonSchema": true,
+				"ddl": true,
+				"xsd": true,
+				"excel": true,
+				"plugin": true 
+			}
+        }
+    },
+    "description": "Hackolade plugin for TinkerPop/Gremlin",
+    "disabled": false
+}

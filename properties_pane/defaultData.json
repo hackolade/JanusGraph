@@ -1,0 +1,57 @@
+{
+	"model": {
+		"modelName": "New model",
+		"dbVersion": "0.5.x",
+		"dbVendor": "JanusGraph"
+	},
+	"container": {
+		"name": "New graph",
+		"traversalSource": "graph",
+		"schema.default": "default",
+		"schema.constraints": true,
+		"indexes": []
+	},
+	"collection": {
+		"collectionName": "New vertex",
+		"collectionUsers": [],
+		"collation": {}
+	},
+	"nestedCollection": {
+		"collectionName": "New sub-vertex",
+		"collectionUsers": [],
+		"entityType": "sub-node",
+		"collation": {},
+		"relationName":"Subclass of"
+	},
+	"field": {
+		"name": "New property",
+		"propCardinality": {
+			"value": "single",
+			"valueDependencies": [{
+				"value": "list",
+				"dependency": {
+					"level": "parent",
+					"key": "childType",
+					"value": "multi-property"
+				}
+			}]
+		}
+	},
+	"patternField": {
+		"name": "^[a-zA-Z0-9_.-]{20}$"
+	},
+	"multipleField": {
+		"primaryKey": false
+	},
+	"subschema": {},
+	"arrayItem": {},
+	"choice": {},
+	"relationship": {
+		"name": "New edge"
+	},
+	"user": {},
+	"view": {
+		"viewOn": "",
+		"pipeline": ""
+	}
+}

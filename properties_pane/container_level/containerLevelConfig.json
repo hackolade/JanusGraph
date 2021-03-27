@@ -1,0 +1,370 @@
+/*
+* Copyright © 2016-2019 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+*
+* The copyright to the computer software herein is the property of IntegrIT S.A.
+* The software may be used and/or copied only with the written permission of 
+* IntegrIT S.A. or in accordance with the terms and conditions stipulated in 
+* the agreement/contract under which the software has been supplied. 
+
+
+In order to define custom properties for any object's properties pane, you may copy/paste from the following,
+making sure that you maintain a proper JSON format.
+
+			{
+				"propertyName": "Simple text",
+				"propertyKeyword": "simpletextProp",
+				"propertyType": "text",
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Text area",
+				"propertyKeyword": "textareaProp",
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Dropdown selection",
+				"propertyKeyword": "dropdownProp",
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"Option 1",
+					"Option 2",
+					"Option 3",
+					"Option 4"
+				]
+			},
+			{
+				"propertyName": "Numeric",
+				"propertyKeyword": "numericProp",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Checkbox",
+				"propertyKeyword": "checkboxProp",
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Group",
+				"propertyType": "group",
+				"propertyKeyword": "grpProp",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			},
+// “groupInput” can have the following states - 0 items, 1 item, and many items.
+// “blockInput” has only 2 states - 0 items or 1 item. 
+// This gives us an easy way to represent it as an object and not as an array internally which is beneficial for processing 
+// and forward-engineering in particular.
+			{
+				"propertyName": "Block",
+				"propertyType": "block",
+				"propertyKeyword": "grpProp",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			},
+			{
+				"propertyName": "Field List",
+				"propertyKeyword": "keyList",
+				"propertyType": "fieldList",
+				"template": "orderedList"
+			}, 
+			{
+				"propertyName": "List with attribute",
+				"propertyKeyword": "keyListOrder",
+				"propertyType": "fieldList",
+				"template": "orderedList",
+				"attributeList": [
+					"ascending",
+					"descending"
+				]
+			}
+
+*/
+
+[
+	{
+		"lowerTab": "Details",
+		"containerLevelKeys": [],
+		"structure": [
+			{
+				"propertyName": "Traversal source",
+				"propertyKeyword": "traversalSource",
+				"propertyTooltip": "Gremlin syntax prefix",
+				"propertyType": "text"
+			},
+			{
+				"propertyName": "Features",
+				"propertyKeyword": "features",
+				"shouldValidate": false,
+				"propertyTooltip": "Graph features",
+				"propertyType": "details",
+				"template": "textarea",
+				"markdown": false
+			},
+			{
+				"propertyName": "Schema default",
+				"propertyKeyword": "schema.default",
+				"propertyTooltip": "Configures the DefaultSchemaMaker to be used by this graph.",
+				"propertyType": "select",
+				"options": [
+					"default",
+					"none",
+					"logging"
+				]
+			},
+			{
+				"propertyName": "Schema constraints",
+				"propertyKeyword": "schema.constraints",
+				"propertyTooltip": "Configures the schema constraints to be used by this graph. If 'schema.constraints' is set to 'true' and 'schema.default' is NOT set 'none', schema constraints are automatically created as described in the config option 'schema.default'. ",
+				"propertyType": "checkbox"
+			},
+	        {
+          		"propertyName": "Graph variables",
+				"propertyType": "group",
+           		"propertyKeyword": "graphVariables",
+           		"propertyTooltip": "",
+           		"structure": [
+           			{
+               			"propertyName": "Key",
+               			"propertyKeyword": "graphVariableKey",
+               			"propertyTooltip": "",
+						"propertyType": "text"
+           			},
+           			{
+						"propertyName": "Value",
+               			"propertyKeyword": "GraphVariableValue",
+               			"propertyTooltip": "",
+               			"propertyType": "text"
+           			}
+           		]
+       		},
+			{
+				"propertyName": "Description",
+				"propertyKeyword": "description",
+				"shouldValidate": false,
+				"propertyTooltip": "description",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Comments",
+				"propertyKeyword": "comments",
+				"shouldValidate": false,
+				"propertyTooltip": "comments",
+				"propertyType": "details",
+				"template": "textarea"
+			}
+		]
+	},
+	{
+		"lowerTab": "Indexes",
+		"structure": [
+			{
+				"propertyName": "Composite indexes",
+				"propertyKeyword": "compositeIndexes",
+				"propertyType": "group",
+				"propertyTooltip": "Composite indexes retrieve vertices or edges by one or a (fixed) composition of multiple keys.",
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"propertyTooltip": "The name of a graph index must be unique.",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "indexKey",
+						"propertyType": "fieldList",
+						"template": "orderedList"
+					},
+					{
+						"propertyName": "Index only label",
+						"propertyKeyword": "IndexOnly",
+						"propertyTooltip": "To restrict the index to a particular vertex or edge label using the indexOnly method of the index builder",
+						"propertyType": "checkbox"
+					},
+					{
+						"propertyName": "Unique",
+						"propertyKeyword": "unique",
+						"propertyTooltip": "If a composite graph index is defined as unique() there can be at most one vertex or edge for any given concatenation of property values associated with the keys of that index.",
+						"propertyType": "checkbox"
+					},
+					{
+						"propertyName": "Description",
+						"propertyKeyword": "indexDescription",
+						"propertyTooltip": "description",
+						"propertyType": "details",
+						"template": "textarea"
+					},
+					{
+						"propertyName": "Comments",
+						"propertyKeyword": "indexComments",
+						"propertyTooltip": "comments",
+						"propertyType": "details",
+						"template": "textarea"
+					}
+				]
+			},
+			{
+				"propertyName": "Mixed indexes",
+				"propertyKeyword": "mixedIndexes",
+				"propertyType": "group",
+				"propertyTooltip": "Requires the configuration of an indexing backend.  Mixed indexes retrieve vertices or edges by any combination of previously added property keys. Mixed indexes provide more flexibility than composite indexes and support additional condition predicates beyond equality. On the other hand, mixed indexes are slower for most equality queries than composite indexes.",
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"propertyTooltip": "The name of a graph index must be unique.",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Backend engine",
+						"propertyKeyword": "indexingBackend",
+						"propertyTooltip": "Each indexing backend must be uniquely identified by name in the JanusGraph configuration.",
+						"propertyType": "select",
+						"options": [
+							"search",
+							"elasticsearch",
+							"lucene",
+							"solr"
+						]
+					},
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "indexKey",
+						"propertyType": "fieldList",
+						"template": "orderedList",
+						"attributeList": [
+							"TEXT",
+							"STRING",
+							"PREFIX_TREE"
+						],
+						"dependency": {
+							"type": "or",
+							"values": [{
+								"key": "indexingBackend",
+								"value": "Element"
+							},{
+								"key": "indexingBackend",
+								"value": "Attribute"
+							}]
+						}
+
+					},
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "indexKey",
+						"propertyType": "fieldList",
+						"template": "orderedList",
+						"attributeList": [
+							"TEXT",
+							"STRING",
+							"TEXTSTRING",
+							"PREFIX_TREE"
+						],
+						"dependency": {
+							"key": "indexingBackend",
+							"value": "elasticsearch"
+						}
+					},
+					{
+						"propertyName": "Description",
+						"propertyKeyword": "indexDescription",
+						"propertyTooltip": "description",
+						"propertyType": "details",
+						"template": "textarea"
+					},
+					{
+						"propertyName": "Comments",
+						"propertyKeyword": "indexComments",
+						"propertyTooltip": "comments",
+						"propertyType": "details",
+						"template": "textarea"
+					}
+				]
+			},
+			{
+				"propertyName": "Vertex-centric indexes",
+				"propertyKeyword": "vertexCentricIndexes",
+				"propertyType": "group",
+				"propertyTooltip": "Local index structures built individually per vertex.",
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"propertyTooltip": "The name of a graph index must be unique.",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "indexKey",
+						"propertyType": "fieldList",
+						"template": "orderedList",
+						"attributeList": [
+							"ascending",
+							"descending"
+						]
+					},
+					{
+						"propertyName": "Direction",
+						"propertyKeyword": "direction",
+						"propertyTooltip": "Choose from the list of available options",
+						"propertyType": "select",
+						"options": [
+							"BOTH",
+							"IN",
+							"OUT"
+						]
+					},
+					{
+						"propertyName": "Description",
+						"propertyKeyword": "indexDescription",
+						"propertyTooltip": "description",
+						"propertyType": "details",
+						"template": "textarea"
+					},
+					{
+						"propertyName": "Comments",
+						"propertyKeyword": "indexComments",
+						"propertyTooltip": "comments",
+						"propertyType": "details",
+						"template": "textarea"
+					}
+				]
+			}
+		]
+	}
+]

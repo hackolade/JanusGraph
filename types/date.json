@@ -1,0 +1,20 @@
+{
+	"name": "date",
+	"erdAbbreviation": "<dt>",
+	"dtdAbbreviation": "{dt}",
+	"parentType": "string",
+	"useSample": true,
+	"sample":"2014-12-03",
+	"defaultValues": {
+		"primaryKey": false,
+		"default": "",
+		"enum": [],
+		"sample":"",
+		"comments":"",
+		"pattern":"",
+		"format": ""
+	},
+	"descriptor": {
+		"format": "YYYY-MM-DD"
+	}
+}
