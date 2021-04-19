@@ -149,5 +149,53 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			}
 		]
+	},
+	{
+		"lowerTab": "Relationships",
+		"structure": [
+			{
+				"propertyName": "Multiplicity",
+				"propertyKeyword": "multiplicity",
+				"propertyTooltip": "Defines a constraint on all edges of this label, that is, a maximum number of edges between pairs of vertices.",
+				"propertyType": "select",
+				"options": [
+					"",
+					"MULTI",
+					"SIMPLE",
+					"MANY2ONE",
+					"ONE2MANY",
+					"ONE2ONE"
+				]
+			},
+			{
+				"propertyName": "Time-To-Live",
+				"propertyKeyword": "edgeTTL",
+				"propertyType": "block",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "edgeTTLvalue",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					},
+					{
+						"propertyName": "Temporal unit",
+						"propertyKeyword": "edgeTTLunit",
+						"propertyTooltip": "Select from list of options",
+						"propertyType": "select",
+						"options": [
+							"Days",
+							"Hours",
+							"Minutes",
+							"Seconds",
+							"Millis",
+							"Nanos"
+						]
+					}
+				]
+			}
+		]
 	}
 ]

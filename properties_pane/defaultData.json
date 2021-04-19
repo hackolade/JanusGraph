@@ -47,7 +47,8 @@
 	"arrayItem": {},
 	"choice": {},
 	"relationship": {
-		"name": "New edge"
+		"name": "New edge",
+		"biDirectional": true
 	},
 	"user": {},
 	"view": {
