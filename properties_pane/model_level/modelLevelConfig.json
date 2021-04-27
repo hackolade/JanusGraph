@@ -175,23 +175,21 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "edgeTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "edgeTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
 					}
 				]

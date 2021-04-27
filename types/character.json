@@ -1,9 +1,11 @@
 {
-	"name": "string",
-	"erdAbbreviation": "<str>",
-	"dtdAbbreviation": "{ABC}",
+	"name": "character",
+	"erdAbbreviation": "<char>",
+	"dtdAbbreviation": "{A}",
+    "parentType": "string",
 	"useSample": true,
 	"default": true,
+    "sample": "a",
 	"defaultValues": {
 		"primaryKey": false,
 		"childRelationships": [],
