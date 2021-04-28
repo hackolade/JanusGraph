@@ -93,8 +93,7 @@ module.exports = {
                 let metaData = {};
 
                 gremlinHelper
-                    .connect(connectionInfo)
-                    .then(() => gremlinHelper.getFeatures())
+                    .getFeatures()
                     .then(features => {
                         metaData.features = features;
                     })
