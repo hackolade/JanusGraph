@@ -1,0 +1,84 @@
+{
+	"name": "geoshape-geometrycollection",
+	"parentType": "document",
+	"properties": [
+		{
+			"name": "geometries",
+			"type": "array",
+			"properties": [
+				{
+					"type": "object",
+					"properties": [
+						{
+							"name": "type",
+							"type": "string",
+							"sample": "point"
+						},
+						{
+							"name": "coordinates",
+							"type": "array",
+							"properties": [
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 37.97
+								},
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 23.72
+								}
+							]
+						}
+					]
+				},
+				{
+					"type": "object",
+					"properties": [
+						{
+							"name": "type",
+							"type": "string",
+							"sample": "line"
+						},
+						{
+							"name": "coordinates",
+							"type": "array",
+							"properties": [
+								{
+									"type": "array",
+									"properties": [
+										{
+											"type": "number",
+											"mode": "double",
+											"sample": 23.72
+										},
+										{
+											"type": "number",
+											"mode": "double",
+											"sample": 23.72
+										}
+									]
+								},
+								{
+									"type": "array",
+									"properties": [
+										{
+											"type": "number",
+											"mode": "double",
+											"sample": 37.97
+										},
+										{
+											"type": "number",
+											"mode": "double",
+											"sample": 37.97
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,42 @@
+{
+	"name": "geoshape-line",
+	"parentType": "array",
+	"properties": [
+		{
+			"name": "coordinates",
+			"type": "array",
+			"properties": [
+				{
+					"type": "array",
+					"properties": [
+						{
+							"type": "number",
+							"mode": "double",
+							"sample": 23.72
+						},
+						{
+							"type": "number",
+							"mode": "double",
+							"sample": 23.72
+						}
+					]
+				},
+				{
+					"type": "array",
+					"properties": [
+						{
+							"type": "number",
+							"mode": "double",
+							"sample": 37.97
+						},
+						{
+							"type": "number",
+							"mode": "double",
+							"sample": 37.97
+						}
+					]
+				}
+			]
+		}
+	]
+}

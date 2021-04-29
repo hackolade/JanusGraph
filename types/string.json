@@ -6,8 +6,6 @@
 	"default": true,
 	"defaultValues": {
 		"primaryKey": false,
-		"childRelationships": [],
-		"foreignField": [],
 		"enum": []
 	}
 }

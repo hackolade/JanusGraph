@@ -1,0 +1,28 @@
+{
+	"name": "geoshape-circle",
+	"parentType": "document",
+	"properties": [
+		{
+			"name": "number",
+			"mode": "double",
+			"type": "string",
+			"sample": 100
+		},
+		{
+			"name": "coordinates",
+			"type": "array",
+			"properties": [
+				{
+					"type": "number",
+					"mode": "double",
+					"sample": 37.97
+				},
+				{
+					"type": "number",
+					"mode": "double",
+					"sample": 23.72
+				}
+			]
+		}
+	]
+}

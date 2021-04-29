@@ -9,8 +9,6 @@
 		"exclusiveMinimum": false,
 		"exclusiveMaximum": false,
 		"primaryKey": false,
-		"enum": [],
-		"mode": "",
-		"sample": ""
+		"enum": []
 	}
 }

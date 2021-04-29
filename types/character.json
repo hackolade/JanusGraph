@@ -8,8 +8,6 @@
     "sample": "a",
 	"defaultValues": {
 		"primaryKey": false,
-		"childRelationships": [],
-		"foreignField": [],
 		"enum": []
 	}
 }

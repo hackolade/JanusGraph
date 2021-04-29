@@ -25,10 +25,11 @@ const getPropertyData = property => {
 
 const getType = propertyType => {
     switch (propertyType) {
+        //TODO: add support for arrays and objects, (Object.class, HashMap.class)
         case 'java.lang.String':
-            return { type: 'character' };
+            return { type: 'String' };
         case 'java.lang.Character':
-            return { type: 'string' };
+            return { type: 'character' };
         case 'java.lang.Boolean':
             return { type: 'boolean' };
         case 'java.lang.Byte':
@@ -45,9 +46,8 @@ const getType = propertyType => {
             return { type: 'number', mode: 'double' };
         case 'java.util.Date':
             return { type: 'number', mode: 'date' };
-        //TODO: add geoshape
-        // case 'org.janusgraph.core.attribute.Geoshape':
-        //     return { type: 'geoshape' };
+        case 'org.janusgraph.core.attribute.Geoshape':
+            return { type: 'geoshape', subType: 'wkt', ...getDefaultSnippet() };
         case 'java.util.UUID':
             return { type: 'uuid' };
         default:
@@ -82,9 +82,21 @@ const getSSLConfig = info => {
     }
 };
 
+const getDefaultSnippet = () => {
+    return {
+        properties: [
+            {
+                name: 'WKT',
+                type: 'string',
+            },
+        ],
+    };
+};
+
 module.exports = {
     getKeyType,
     getTTL,
     getPropertyData,
     getSSLConfig,
+    getDefaultSnippet,
 };

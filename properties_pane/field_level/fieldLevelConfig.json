@@ -702,6 +702,113 @@ making sure that you maintain a proper JSON format.
 			"enum",
 			"sample",
 			"comments"
+		],
+		"___1": [],
+		"geoshape": [
+			"name",
+			"schemaId",
+			"description",
+			"type",
+			"subtype",
+			{
+				"propertyName": "Property cardinality",
+				"propertyKeyword": "propCardinality",
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"single",
+					"list",
+					"set"
+				]
+			},
+			{
+				"propertyName": "Time-To-Live",
+				"propertyKeyword": "propertyTTL",
+				"propertyType": "block",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "TTLValue",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					},
+					{
+						"propertyName": "Temporal unit",
+						"propertyKeyword": "TTLUnit",
+						"propertyTooltip": "Select from list of options",
+						"propertyType": "select",
+						"options": [
+							"Days",
+							"Hours",
+							"Minutes",
+							"Seconds"
+						]
+					}
+				]
+			},
+			{
+				"propertyName": "Meta-properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProperties",
+				"propertyTooltip": "",
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "metaPropName",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "metaPropType",
+						"propertyType": "select",
+						"options": [
+							"string",
+							"uuid",
+							"number",
+							"boolean",
+							"date"
+						],
+						"data": "options",
+						"valueType": "string"
+					},
+					{
+						"propertyName": "Sample",
+						"propertyKeyword": "metaPropSample",
+						"propertyType": "text",
+						"sampleGen": "&containerName|&entityName|&random|<value>"
+					}
+				]
+			},
+			"required",
+			"default",
+			"enum",
+			"dependencies",
+			"sample",
+			"comments"
+		],
+		"___2": [],
+		"array": [
+			"name",
+			"schemaId",
+			"refPath",
+			"description",
+			"type",
+			"dependencies",
+			"required",
+			"minItems",
+			"maxItems",
+			"uniqueItems",
+			"additionalItems",
+			"comments"
 		]
 	}
 }
