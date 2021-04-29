@@ -3,9 +3,9 @@
 	"parentType": "document",
 	"properties": [
 		{
-			"name": "number",
+			"name": "radius",
 			"mode": "double",
-			"type": "string",
+			"type": "number",
 			"sample": 100
 		},
 		{

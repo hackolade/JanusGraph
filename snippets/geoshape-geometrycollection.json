@@ -7,74 +7,98 @@
 			"type": "array",
 			"properties": [
 				{
-					"type": "object",
-					"properties": [
+					"type": "geoshape",
+					"additionalProperties": false,
+					"properties": [],
+					"subType": "wkt",
+					"subTypes": [
 						{
-							"name": "type",
-							"type": "string",
-							"sample": "point"
+							"name": "wkt",
+							"snippet": "geoshape-wkt"
 						},
 						{
-							"name": "coordinates",
-							"type": "array",
-							"properties": [
-								{
-									"type": "number",
-									"mode": "double",
-									"sample": 37.97
-								},
-								{
-									"type": "number",
-									"mode": "double",
-									"sample": 23.72
-								}
-							]
+							"name": "point",
+							"snippet": "geoshape-point"
+						},
+						{
+							"name": "box",
+							"snippet": "geoshape-box"
+						},
+						{
+							"name": "circle",
+							"snippet": "geoshape-circle"
+						},
+						{
+							"name": "line",
+							"snippet": "geoshape-line"
+						},
+						{
+							"name": "polygon",
+							"snippet": "geoshape-polygon"
+						},
+						{
+							"name": "multipoint",
+							"snippet": "geoshape-multipoint"
+						},
+						{
+							"name": "multilinestring",
+							"snippet": "geoshape-multilinestring"
+						},
+						{
+							"name": "multipolygon",
+							"snippet": "geoshape-multipolygon"
+						},
+						{
+							"name": "geometrycollection",
+							"snippet": "geoshape-geometrycollection"
 						}
 					]
 				},
 				{
-					"type": "object",
-					"properties": [
+					"type": "geoshape",
+					"additionalProperties": false,
+					"properties": [],
+					"subType": "wkt",
+					"subTypes": [
 						{
-							"name": "type",
-							"type": "string",
-							"sample": "line"
+							"name": "wkt",
+							"snippet": "geoshape-wkt"
 						},
 						{
-							"name": "coordinates",
-							"type": "array",
-							"properties": [
-								{
-									"type": "array",
-									"properties": [
-										{
-											"type": "number",
-											"mode": "double",
-											"sample": 23.72
-										},
-										{
-											"type": "number",
-											"mode": "double",
-											"sample": 23.72
-										}
-									]
-								},
-								{
-									"type": "array",
-									"properties": [
-										{
-											"type": "number",
-											"mode": "double",
-											"sample": 37.97
-										},
-										{
-											"type": "number",
-											"mode": "double",
-											"sample": 37.97
-										}
-									]
-								}
-							]
+							"name": "point",
+							"snippet": "geoshape-point"
+						},
+						{
+							"name": "box",
+							"snippet": "geoshape-box"
+						},
+						{
+							"name": "circle",
+							"snippet": "geoshape-circle"
+						},
+						{
+							"name": "line",
+							"snippet": "geoshape-line"
+						},
+						{
+							"name": "polygon",
+							"snippet": "geoshape-polygon"
+						},
+						{
+							"name": "multipoint",
+							"snippet": "geoshape-multipoint"
+						},
+						{
+							"name": "multilinestring",
+							"snippet": "geoshape-multilinestring"
+						},
+						{
+							"name": "multipolygon",
+							"snippet": "geoshape-multipolygon"
+						},
+						{
+							"name": "geometrycollection",
+							"snippet": "geoshape-geometrycollection"
 						}
 					]
 				}
