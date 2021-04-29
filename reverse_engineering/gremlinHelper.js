@@ -689,7 +689,7 @@ const convertGraphSonToSchema = graphSON => {
     const typeData = getType(rawType);
     const rawProperties = graphSON['@value'];
 
-    if(typeData.type === 'geoshape') {
+    if (typeData.type === 'geoshape') {
         return typeData;
     }
 
@@ -778,6 +778,12 @@ const getVertexLabelData = name => {
         });
 };
 
+const getGraphSchema = () => {
+    return client
+        .submit(`${state.traversalSource}.getGraph().openManagement().printSchema()`)
+        .then(schema => _.first(schema.toArray()));
+};
+
 module.exports = {
     connect,
     testConnection,
@@ -796,4 +802,5 @@ module.exports = {
     getRelationshipsLabels,
     getPropertyKeys,
     getVertexLabelData,
+    getGraphSchema,
 };

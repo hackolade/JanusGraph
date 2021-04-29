@@ -93,7 +93,9 @@ module.exports = {
                 let metaData = {};
 
                 gremlinHelper
-                    .getFeatures()
+                    .getGraphSchema()
+                    .then(schema => logger.log('info', schema, 'Graph Schema'))
+                    .then(() => gremlinHelper.getFeatures())
                     .then(features => {
                         metaData.features = features;
                     })
