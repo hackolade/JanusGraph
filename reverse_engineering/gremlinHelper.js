@@ -593,7 +593,7 @@ const submitGraphSONDataScript = query => {
 };
 
 const getDataQuery = (element, label, limit) =>
-    `${state.traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`; // ! possible solution for Byte `.collect{item -> item.toString()}`, but needs to rewrite so much logic of getting data types
+    `${state.traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`;
 
 const getMetaPropertiesDataQuery = (label, limit) =>
     `${state.traversalSource}.
@@ -657,7 +657,6 @@ const getSchema = ({ gremlinElement, documents, label, limit = 100, propertyKeys
 
 const getType = rawType => {
     switch (rawType) {
-        //Add support for arrays and objects
         case 'g:Double':
             return { type: 'number', mode: 'double' };
         case 'g:Int32':

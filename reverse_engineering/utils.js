@@ -25,7 +25,6 @@ const getPropertyData = property => {
 
 const getType = propertyType => {
     switch (propertyType) {
-        //TODO: add support for arrays and objects, (Object.class, HashMap.class)
         case 'java.lang.String':
             return { type: 'string' };
         case 'java.lang.Character':
