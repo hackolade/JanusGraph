@@ -159,7 +159,6 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Defines a constraint on all edges of this label, that is, a maximum number of edges between pairs of vertices.",
 				"propertyType": "select",
 				"options": [
-					"",
 					"MULTI",
 					"SIMPLE",
 					"MANY2ONE",

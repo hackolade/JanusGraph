@@ -48,7 +48,8 @@
 	"choice": {},
 	"relationship": {
 		"name": "New edge",
-		"biDirectional": true
+		"biDirectional": true,
+		"multiplicity": "MULTI"
 	},
 	"user": {},
 	"view": {
