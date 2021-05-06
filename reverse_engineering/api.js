@@ -256,7 +256,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                             vertexCentricIndexes: data.vertexCentricIndexes,
                             features: data.features,
                             variables: data.variables,
-                            propertyKeys: data.propertyKeys
+                            propertyKeys: data.propertyKeys,
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -361,7 +361,7 @@ const getLabelPackage = ({
     vertexCentricIndexes,
     features,
     variables,
-    propertyKeys
+    propertyKeys,
 }) => {
     let packageData = {
         dbName,
@@ -371,7 +371,7 @@ const getLabelPackage = ({
         emptyBucket: false,
         entityLevel,
         validation: {
-            jsonSchema: schema,
+            jsonSchema: convertSchemaToRefs(schema),
         },
         bucketInfo: {
             compositeIndexes,
@@ -384,7 +384,7 @@ const getLabelPackage = ({
         modelDefinitions: {
             properties: {
                 ...propertyKeys,
-                ...(schema.properties || {}),
+                ...clearMetaProperties(schema.properties),
             },
         },
     };
@@ -406,3 +406,20 @@ const prepareError = error => {
         stack: error.stack,
     };
 };
+
+const convertSchemaToRefs = schema => {
+    return {
+        ...schema,
+        properties: Object.fromEntries(
+            Object.entries(schema.properties || {}).map(([name, property]) => ([name, {
+                $ref: `#/definitions/${name}`,
+                ...(property.metaProperties && { metaProperties: property.metaProperties }),
+            }]))
+        ),
+    };
+};
+
+const clearMetaProperties = (properties = {}) =>
+    Object.fromEntries(
+        Object.entries(properties).map(([name, property]) => [name, _.omit(property, 'metaProperties')])
+    );

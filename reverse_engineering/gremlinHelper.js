@@ -397,7 +397,7 @@ const convertRootGraphSON = (propertyKeys = {}, propertyNames = []) => propertie
             }
 
             if (_.isObject(property)) {
-                return { key, values };
+                return { keys, values };
             }
 
             return {

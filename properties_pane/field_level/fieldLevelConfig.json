@@ -163,6 +163,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -261,6 +262,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -331,6 +333,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -478,6 +481,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -578,6 +582,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -678,6 +683,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -770,6 +776,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -853,6 +860,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -958,6 +966,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
@@ -1067,6 +1076,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
 				"dependency": [
 					{
