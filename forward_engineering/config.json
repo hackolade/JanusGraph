@@ -1,10 +1,27 @@
 {
-	"extension": "gremlin",
-	"filterName": "Gremlin script",
-	"namePrefix": "Gremlin",
+	"extension": "groovy",
+	"filterName": "JanusGraph schema",
+	"namePrefix": "JanusGraph schema",
 	"hasUpdateScript": false,
 	"level": {
 		"container": true,
 		"entity": false
-	}
+	},
+	"additionalOptions": [
+		{
+			"id": "INCLUDE_SAMPLES",
+			"value": true,
+			"name": "Include sample data",
+			"align": "right",
+			"level": {
+				"entity": false
+			}
+		}
+	],
+	"splitView": {
+		"byAdditionalOptions": [
+			"INCLUDE_SAMPLES"
+		]
+	},
+	"applyScriptToInstance": true
 }
