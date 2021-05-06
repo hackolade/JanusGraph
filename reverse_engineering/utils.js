@@ -20,7 +20,11 @@ const getTTL = (ttl = 0) => {
 };
 
 const getPropertyData = property => {
-    return { ...getType(property.dataType), propCardinality: property.cardinality };
+    return {
+        ...getType(property.dataType),
+        ...(property.propertyTTL && { propertyTTL: property.propertyTTL }),
+        propCardinality: property.cardinality,
+    };
 };
 
 const getType = propertyType => {
@@ -49,8 +53,34 @@ const getType = propertyType => {
             return { type: 'geoshape', subType: 'wkt', ...getDefaultSnippet() };
         case 'java.util.UUID':
             return { type: 'uuid' };
+        case 'java.util.HashMap':
+            return { type: 'map' };
+        case '[Ljava.lang.String':
+            return { type: 'list', subtype: 'list<str>' };
+        case '[Ljava.lang.Character':
+            return { type: 'list', subtype: 'list<char>' };
+        case '[Ljava.lang.Short':
+            return { type: 'list', subtype: 'list<number>', items: getListNumberProperties('short') };
+        case '[Ljava.util.Date':
+            return { type: 'list', subtype: 'list<date>' };
+        case '[Ljava.util.UUID':
+            return { type: 'list', subtype: 'list<uuid>' };
+        case '[F':
+            return { type: 'list', subtype: 'list<number>', items: getListNumberProperties('float') };
+        case '[I':
+            return { type: 'list', subtype: 'list<number>', items: getListNumberProperties('integer') };
+        case '[J':
+            return { type: 'list', subtype: 'list<number>', items: getListNumberProperties('long') };
+        case '[D':
+            return { type: 'list', subtype: 'list<number>', items: getListNumberProperties('double') };
+        case '[B':
+            return { type: 'list', subtype: 'list<number>', items: getListNumberProperties('byte') };
+        case '[Z':
+            return { type: 'list', subtype: 'list<bool>' };
+        case 'java.lang.Object':
+            return { type: 'map' };
         default:
-            return { type: 'string' };
+            return { type: 'map' };
     }
 };
 
@@ -92,10 +122,15 @@ const getDefaultSnippet = () => {
     };
 };
 
+const getListNumberProperties = mode => [{ type: 'number', mode }];
+
+const getListSubtypeByItemType = itemType => `list<${itemType}>`
+
 module.exports = {
     getKeyType,
     getTTL,
     getPropertyData,
     getSSLConfig,
     getDefaultSnippet,
+    getListSubtypeByItemType,
 };

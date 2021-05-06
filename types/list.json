@@ -1,0 +1,46 @@
+{
+	"name": "list",
+	"erdAbbreviation": "<list>",
+	"dtdAbbreviation": "[...]",
+	"parentType": "array",
+	"useSample": true,
+	"defaultValues": {
+		"properties": [],
+		"primaryKey": false,
+		"additionalItems": true,
+		"uniqueItems": false,
+		"subtype": "list<str>"
+	},
+	"subtypes": {
+		"list<str>": {
+			"childValueType": "string"
+		},
+		"list<char>": {
+			"childValueType": "character"
+		},
+		"list<bool>": {
+			"childValueType": "boolean"
+		},
+		"list<number>": {
+			"childValueType": "number"
+		},
+		"list<date>": {
+			"childValueType": "date"
+		},
+		"list<uuid>": {
+			"childValueType": "uuid"
+		},
+		"list<geoshape>": {
+			"childValueType": "geoshape"
+		},
+		"list<list>": {
+			"childValueType": "list"
+		},
+		"list<set>": {
+			"childValueType": "set"
+		},
+		"list<map>": {
+			"childValueType": "map"
+		}
+	}
+}

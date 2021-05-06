@@ -1,0 +1,46 @@
+{
+	"name": "set",
+	"erdAbbreviation": "<set>",
+	"dtdAbbreviation": "{...}",
+	"parentType": "array",
+	"useSample": true,
+	"defaultValues": {
+		"dependencies": [],
+		"primaryKey": false,
+		"properties": [],
+		"additionalProperties": false,
+		"subtype": "set<str>"
+	},
+	"subtypes": {
+		"set<str>": {
+			"childValueType": "string"
+		},
+		"set<char>": {
+			"childValueType": "character"
+		},
+		"set<bool>": {
+			"childValueType": "boolean"
+		},
+		"set<number>": {
+			"childValueType": "number"
+		},
+		"set<date>": {
+			"childValueType": "date"
+		},
+		"set<uuid>": {
+			"childValueType": "uuid"
+		},
+		"set<geoshape>": {
+			"childValueType": "geoshape"
+		},
+		"set<list>": {
+			"childValueType": "list"
+		},
+		"set<set>": {
+			"childValueType": "set"
+		},
+		"set<map>": {
+			"childValueType": "map"
+		}
+	}
+}

@@ -21,21 +21,11 @@
 		"collectionUsers": [],
 		"entityType": "sub-node",
 		"collation": {},
-		"relationName":"Subclass of"
+		"relationName": "Subclass of"
 	},
 	"field": {
 		"name": "New property",
-		"propCardinality": {
-			"value": "single",
-			"valueDependencies": [{
-				"value": "list",
-				"dependency": {
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}
-			}]
-		}
+		"propCardinality": "single"
 	},
 	"patternField": {
 		"name": "^[a-zA-Z0-9_.-]{20}$"
