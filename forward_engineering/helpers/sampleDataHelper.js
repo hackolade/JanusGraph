@@ -1,14 +1,11 @@
-let _ = null;
+const { transformToValidGremlinName, DEFAULT_INDENT } = require("./common");
 
-const DEFAULT_INDENT = '    ';
-
-const setDependencies = app => {
-    _ = app.require('lodash');
-};
+let _ = null
+const setDependencies = app => _ = app.require('lodash');
 
 const generateGremlinDataSamples = ({ collections, relationships, jsonData, containerData, app }) => {
-    setDependencies(app);
-
+    setDependencies(app)
+    
     let resultScript = '';
     const traversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
     const graphName = transformToValidGremlinName(traversalSource);
@@ -427,24 +424,6 @@ const convertPropertyValue = (property, level, type, value) => {
     }
 
     return convertMap(property, level, value);
-};
-
-const transformToValidGremlinName = name => {
-    const DEFAULT_NAME = 'New_vertex';
-    const DEFAULT_PREFIX = 'v_';
-
-    if (!name || !_.isString(name)) {
-        return DEFAULT_NAME;
-    }
-
-    const nameWithoutSpecialCharacters = name.replace(/[\s`~!@#%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '_');
-    const startsFromDigit = nameWithoutSpecialCharacters.match(/^[0-9].*$/);
-
-    if (startsFromDigit) {
-        return `${DEFAULT_PREFIX}_${nameWithoutSpecialCharacters}`;
-    }
-
-    return nameWithoutSpecialCharacters;
 };
 
 module.exports ={
