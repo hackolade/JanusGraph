@@ -8,7 +8,8 @@
 		"properties": [],
 		"primaryKey": false,
 		"additionalItems": true,
-		"uniqueItems": false
+		"uniqueItems": false,
+		"subtype": "list<str>"
 	},
 	"subtypes": {
 		"list<str>": {

@@ -3,7 +3,14 @@ let sshTunnel;
 const fs = require('fs');
 const ssh = require('tunnel-ssh');
 const gremlin = require('gremlin');
-const { getTTL, getKeyType, getPropertyData, getSSLConfig, getDefaultSnippet } = require('./utils');
+const {
+    getTTL,
+    getKeyType,
+    getPropertyData,
+    getSSLConfig,
+    getDefaultSnippet,
+    getListSubtypeByItemType,
+} = require('./utils');
 
 let client;
 let state = {
@@ -404,15 +411,30 @@ const convertRootGraphSON = (propertyKeys = {}, propertyNames = []) => propertie
     const propertiesDocument = _.concat(keys, propertyNames).reduce(
         (properties, key, index) => ({
             ...properties,
-            [key]: {
-                ...(values[index] || {}),
-                ...getPropertyData(propertyKeys[key]),
-            },
+            [key]: mergePropertyKey(values[index] || {}, getPropertyData(propertyKeys[key])),
         }),
         {}
     );
 
     return { properties: propertiesDocument };
+};
+
+const mergePropertyKey = (propertyKeyLeft = {}, propertyKeyRight = {}) => {
+    if (propertyKeyLeft.type === 'set') {
+        const setSubtype = propertyKeyRight.subtype ? propertyKeyRight.subtype.replace('list', 'set') : '';
+
+        return {
+            ...propertyKeyLeft,
+            ..._.omit(propertyKeyRight, 'type', 'subtype', 'mode'),
+            ...(setSubtype && { setSubtype }),
+        };
+    }
+
+    if (propertyKeyLeft.type !== propertyKeyRight.type) {
+        return { ...propertyKeyLeft, ..._.omit(propertyKeyRight, 'type', 'subtype', 'mode', 'items') };
+    }
+
+    return { ...propertyKeyLeft, ...propertyKeyRight };
 };
 
 const mergeJsonSchemas = schemas => schemas.reduce(mergeSchemas, {});
@@ -657,6 +679,12 @@ const getSchema = ({ gremlinElement, documents, label, limit = 100, propertyKeys
 
 const getType = rawType => {
     switch (rawType) {
+        case 'g:List':
+            return { type: 'list' };
+        case 'g:Map':
+            return { type: 'map' };
+        case 'g:Set':
+            return { type: 'set' };
         case 'g:Double':
             return { type: 'number', mode: 'double' };
         case 'g:Int32':
@@ -677,7 +705,42 @@ const getType = rawType => {
     }
 };
 
+const groupPropertiesForMap = properties => {
+    const { keys, values } = properties.reduce(
+        ({ keys, values }, property, index) => {
+            if (index % 2) {
+                return { keys, values: [...values, convertGraphSonToSchema(property)] };
+            }
+
+            return { keys: [...keys, property + ''], values };
+        },
+        {
+            keys: [],
+            values: [],
+        }
+    );
+
+    return keys.reduce((properties, key, index) => {
+        return Object.assign({}, properties, {
+            [key]: values[index] || {},
+        });
+    }, {});
+};
+
+const getItems = properties => properties.map(convertGraphSonToSchema);
+
 const convertGraphSonToSchema = graphSON => {
+    if (_.isArray(graphSON)) {
+        const items = getItems(graphSON);
+        const typeOfItems = items[0].type;
+
+        return {
+            type: 'list',
+            subtype: getListSubtypeByItemType(typeOfItems),
+            items,
+        };
+    }
+
     if (!_.isPlainObject(graphSON)) {
         return {
             type: typeof graphSON,
@@ -691,6 +754,18 @@ const convertGraphSonToSchema = graphSON => {
 
     if (typeData.type === 'geoshape') {
         return typeData;
+    }
+
+    if (rawType === 'g:Map') {
+        const properties = groupPropertiesForMap(rawProperties);
+
+        return { ...typeData, properties };
+    }
+
+    if (rawType === 'g:List' || rawType === 'g:Set') {
+        const items = getItems(rawProperties);
+
+        return { ...typeData, items };
     }
 
     return { ...typeData, sample: rawProperties };

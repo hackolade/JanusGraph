@@ -8,7 +8,8 @@
 		"dependencies": [],
 		"primaryKey": false,
 		"properties": [],
-		"additionalProperties": false
+		"additionalProperties": false,
+		"subtype": "set<str>"
 	},
 	"subtypes": {
 		"set<str>": {

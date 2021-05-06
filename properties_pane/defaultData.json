@@ -25,25 +25,7 @@
 	},
 	"field": {
 		"name": "New property",
-		"propCardinality": "single",
-		"subtype": {
-			"valueDependencies": [
-				{
-					"value": "list<str>",
-					"dependency": {
-						"key": "childType",
-						"value": "list"
-					}
-				},
-				{
-					"value": "set<str>",
-					"dependency": {
-						"key": "childType",
-						"value": "set"
-					}
-				}
-			]
-		}
+		"propCardinality": "single"
 	},
 	"patternField": {
 		"name": "^[a-zA-Z0-9_.-]{20}$"
