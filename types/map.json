@@ -1,0 +1,15 @@
+{
+	"name": "map",
+	"erdAbbreviation": "<map>",
+	"dtdAbbreviation": "{...}",
+	"parentType": "document",
+	"sample": {},
+	"useSample": true,
+	"default": true,
+	"defaultValues": { 
+		"dependencies": [],
+		"primaryKey": false,
+		"properties": [],
+		"additionalProperties": false
+	}
+}

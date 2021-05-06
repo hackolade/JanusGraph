@@ -186,7 +186,10 @@ making sure that you maintain a proper JSON format.
 							"uuid",
 							"number",
 							"boolean",
-							"date"
+							"date",
+							"map",
+							"list",
+							"set"
 						],
 						"data": "options",
 						"valueType": "string"
@@ -281,7 +284,10 @@ making sure that you maintain a proper JSON format.
 							"uuid",
 							"number",
 							"boolean",
-							"date"
+							"date",
+							"map",
+							"list",
+							"set"
 						],
 						"data": "options",
 						"valueType": "string"
@@ -348,7 +354,10 @@ making sure that you maintain a proper JSON format.
 							"uuid",
 							"number",
 							"boolean",
-							"date"
+							"date",
+							"map",
+							"list",
+							"set"
 						],
 						"data": "options",
 						"valueType": "string"
@@ -492,7 +501,10 @@ making sure that you maintain a proper JSON format.
 							"uuid",
 							"number",
 							"boolean",
-							"date"
+							"date",
+							"map",
+							"list",
+							"set"
 						],
 						"data": "options",
 						"valueType": "string"
@@ -589,7 +601,10 @@ making sure that you maintain a proper JSON format.
 							"uuid",
 							"number",
 							"boolean",
-							"date"
+							"date",
+							"map",
+							"list",
+							"set"
 						],
 						"data": "options",
 						"valueType": "string"
@@ -686,7 +701,10 @@ making sure that you maintain a proper JSON format.
 							"uuid",
 							"number",
 							"boolean",
-							"date"
+							"date",
+							"map",
+							"list",
+							"set"
 						],
 						"data": "options",
 						"valueType": "string"
@@ -775,7 +793,10 @@ making sure that you maintain a proper JSON format.
 							"uuid",
 							"number",
 							"boolean",
-							"date"
+							"date",
+							"map",
+							"list",
+							"set"
 						],
 						"data": "options",
 						"valueType": "string"
@@ -796,6 +817,309 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"___2": [],
+		"map": [
+			"name",
+			"schemaId",
+			"description",
+			"type",
+			{
+				"propertyName": "Time-To-Live",
+				"propertyKeyword": "propertyTTL",
+				"propertyType": "block",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "TTLValue",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					},
+					{
+						"propertyName": "Temporal unit",
+						"propertyKeyword": "TTLUnit",
+						"propertyTooltip": "Select from list of options",
+						"propertyType": "select",
+						"options": [
+							"Days",
+							"Hours",
+							"Minutes",
+							"Seconds"
+						]
+					}
+				]
+			},
+			{
+				"propertyName": "Meta-properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProperties",
+				"propertyTooltip": "",
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					},
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "multi-property"
+					}
+				],
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "metaPropName",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "metaPropType",
+						"propertyType": "select",
+						"options": [
+							"string",
+							"uuid",
+							"number",
+							"boolean",
+							"date",
+							"map",
+							"list",
+							"set"
+						],
+						"data": "options",
+						"valueType": "string"
+					},
+					{
+						"propertyName": "Sample",
+						"propertyKeyword": "metaPropSample",
+						"propertyType": "text",
+						"sampleGen": "&containerName|&entityName|&random|<value>"
+					}
+				]
+			},
+			"required",
+			"dependencies",
+			"minProperties",
+			"maxProperties",
+			"additionalProperties",
+			"comments"
+		],
+		"list": [
+			"name",
+			"schemaId",
+			"description",
+			"type",
+			{
+				"propertyName": "Subtype",
+				"propertyKeyword": "subtype",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"list<str>",
+					"list<char>",
+					"list<bool>",
+					"list<number>",
+					"list<date>",
+					"list<uuid>",
+					"list<geoshape>",
+					"list<list>",
+					"list<set>",
+					"list<map>"
+				]
+			},
+			{
+				"propertyName": "Time-To-Live",
+				"propertyKeyword": "propertyTTL",
+				"propertyType": "block",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "TTLValue",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					},
+					{
+						"propertyName": "Temporal unit",
+						"propertyKeyword": "TTLUnit",
+						"propertyTooltip": "Select from list of options",
+						"propertyType": "select",
+						"options": [
+							"Days",
+							"Hours",
+							"Minutes",
+							"Seconds"
+						]
+					}
+				]
+			},
+			{
+				"propertyName": "Meta-properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProperties",
+				"propertyTooltip": "",
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					},
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "multi-property"
+					}
+				],
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "metaPropName",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "metaPropType",
+						"propertyType": "select",
+						"options": [
+							"string",
+							"uuid",
+							"number",
+							"boolean",
+							"date",
+							"map",
+							"list",
+							"set"
+						],
+						"data": "options",
+						"valueType": "string"
+					},
+					{
+						"propertyName": "Sample",
+						"propertyKeyword": "metaPropSample",
+						"propertyType": "text",
+						"sampleGen": "&containerName|&entityName|&random|<value>"
+					}
+				]
+			},
+			"required",
+			"dependencies",
+			"minItems",
+			"maxItems",
+			"uniqueItems",
+			"additionalItems",
+			"comments"
+		],
+		"set": [
+			"name",
+			"code",
+			"sampleName",
+			"schemaId",
+			"refPath",
+			"description",
+			"type",
+			{
+				"propertyName": "Subtype",
+				"propertyKeyword": "subtype",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"set<str>",
+					"set<char>",
+					"set<bool>",
+					"set<number>",
+					"set<date>",
+					"set<uuid>",
+					"set<geoshape>",
+					"set<list>",
+					"set<set>",
+					"set<map>"
+				]
+			},
+			{
+				"propertyName": "Time-To-Live",
+				"propertyKeyword": "propertyTTL",
+				"propertyType": "block",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "TTLValue",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					},
+					{
+						"propertyName": "Temporal unit",
+						"propertyKeyword": "TTLUnit",
+						"propertyTooltip": "Select from list of options",
+						"propertyType": "select",
+						"options": [
+							"Days",
+							"Hours",
+							"Minutes",
+							"Seconds"
+						]
+					}
+				]
+			},
+			{
+				"propertyName": "Meta-properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProperties",
+				"propertyTooltip": "",
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					},
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "multi-property"
+					}
+				],
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "metaPropName",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "metaPropType",
+						"propertyType": "select",
+						"options": [
+							"string",
+							"uuid",
+							"number",
+							"boolean",
+							"date",
+							"map",
+							"list",
+							"set"
+						],
+						"data": "options",
+						"valueType": "string"
+					},
+					{
+						"propertyName": "Sample",
+						"propertyKeyword": "metaPropSample",
+						"propertyType": "text",
+						"sampleGen": "&containerName|&entityName|&random|<value>"
+					}
+				]
+			},
+			"required",
+			"dependencies",
+			"minItems",
+			"maxItems",
+			"uniqueItems",
+			"additionalItems",
+			"comments"
+		],
+		"___3": [],
 		"array": [
 			"name",
 			"schemaId",

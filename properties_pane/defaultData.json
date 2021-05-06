@@ -21,20 +21,28 @@
 		"collectionUsers": [],
 		"entityType": "sub-node",
 		"collation": {},
-		"relationName":"Subclass of"
+		"relationName": "Subclass of"
 	},
 	"field": {
 		"name": "New property",
-		"propCardinality": {
-			"value": "single",
-			"valueDependencies": [{
-				"value": "list",
-				"dependency": {
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
+		"propCardinality": "single",
+		"subtype": {
+			"valueDependencies": [
+				{
+					"value": "list<str>",
+					"dependency": {
+						"key": "childType",
+						"value": "list"
+					}
+				},
+				{
+					"value": "set<str>",
+					"dependency": {
+						"key": "childType",
+						"value": "set"
+					}
 				}
-			}]
+			]
 		}
 	},
 	"patternField": {
