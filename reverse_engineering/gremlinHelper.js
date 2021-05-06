@@ -411,7 +411,7 @@ const convertRootGraphSON = (propertyKeys = {}, propertyNames = []) => propertie
     const propertiesDocument = _.concat(keys, propertyNames).reduce(
         (properties, key, index) => ({
             ...properties,
-            [key]: mergePropertyKey(values[index] || {}, getPropertyData(propertyKeys[key])),
+            [key]: mergePropertyKey(values[index] || {}, propertyKeys[key]),
         }),
         {}
     );
@@ -817,14 +817,17 @@ const getPropertyKeys = () => {
         )
         .then(propertyKeys =>
             Object.fromEntries(
-                propertyKeys.toArray().map(property => [
-                    property.get('name'),
-                    {
-                        cardinality: property.get('cardinality'),
-                        dataType: property.get('dataType'),
-                        propertyTTL: getTTL(property.get('TTL')),
-                    },
-                ])
+                propertyKeys
+                    .toArray()
+                    .map(property => [
+                        property.get('name'),
+                        {
+                            cardinality: property.get('cardinality'),
+                            dataType: property.get('dataType'),
+                            propertyTTL: getTTL(property.get('TTL')),
+                        },
+                    ])
+                    .map(([key, value]) => [key, getPropertyData(value)])
             )
         );
 };

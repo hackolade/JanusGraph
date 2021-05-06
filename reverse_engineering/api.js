@@ -117,10 +117,8 @@ module.exports = {
                         metaData.compositeIndexes = compositeIndexes;
                         metaData.mixedIndexes = mixedIndexes;
                         metaData.vertexCentricIndexes = vertexCentricIndexes;
-
-                        return metaData;
                     })
-                    .then(metaData => {
+                    .then(() => {
                         return getNodesData(dbName, labels, logger, {
                             recordSamplingSettings,
                             fieldInference,
@@ -258,6 +256,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                             vertexCentricIndexes: data.vertexCentricIndexes,
                             features: data.features,
                             variables: data.variables,
+                            propertyKeys: data.propertyKeys
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -362,6 +361,7 @@ const getLabelPackage = ({
     vertexCentricIndexes,
     features,
     variables,
+    propertyKeys
 }) => {
     let packageData = {
         dbName,
@@ -380,6 +380,12 @@ const getLabelPackage = ({
             features,
             graphVariables: variables,
             traversalSource: dbName,
+        },
+        modelDefinitions: {
+            properties: {
+                ...propertyKeys,
+                ...(schema.properties || {}),
+            },
         },
     };
 

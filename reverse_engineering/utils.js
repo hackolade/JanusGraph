@@ -20,7 +20,11 @@ const getTTL = (ttl = 0) => {
 };
 
 const getPropertyData = property => {
-    return { ...getType(property.dataType), propCardinality: property.cardinality };
+    return {
+        ...getType(property.dataType),
+        ...(property.propertyTTL && { propertyTTL: property.propertyTTL }),
+        propCardinality: property.cardinality,
+    };
 };
 
 const getType = propertyType => {
