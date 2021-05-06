@@ -160,6 +160,5 @@
 	"CONTEXT_MENU___CONVERT_TO_PATTERN_FIELD": "Convert to Pattern Property Key",
 	"CONTEXT_MENU___CONVERT_PATTERN_TO_REGULAR_FIELD": "Convert to Regular Property Key",
 	"CENTRAL_PANE___FE_SCRIPT": "Gremlin script",
-	"MAIN_MENU___FORWARD_DB_BUCKETS": "Gremlin script...",
-	"PROPERTIES_PANE___BI_DIRECTIONAL": "Bi-directional"
+	"MAIN_MENU___FORWARD_DB_BUCKETS": "Gremlin script..."
 }
