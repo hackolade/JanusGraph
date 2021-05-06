@@ -42,6 +42,6 @@
 			}
         }
     },
-    "description": "Hackolade plugin for TinkerPop/Gremlin",
+    "description": "Hackolade plugin for JanusGraph",
     "disabled": false
 }
