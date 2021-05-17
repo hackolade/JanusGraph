@@ -3,14 +3,8 @@ let sshTunnel;
 const fs = require('fs');
 const ssh = require('tunnel-ssh');
 const gremlin = require('gremlin');
-const {
-    getTTL,
-    getKeyType,
-    getPropertyData,
-    getSSLConfig,
-    getDefaultSnippet,
-    getListSubtypeByItemType,
-} = require('./utils');
+const { getTTL, getKeyType, getPropertyData, getSSLConfig, getListSubtypeByItemType } = require('./utils');
+const { getSnippet } = require('./helpers/snippetHelper');
 
 let client;
 let state = {
@@ -698,7 +692,7 @@ const getType = rawType => {
         case 'g:UUID':
             return { type: 'uuid' };
         case 'janusgraph:Geoshape':
-            return { type: 'geoshape', subType: 'wkt', ...getDefaultSnippet() };
+            return { type: 'geoshape' };
         default: {
             return { type: 'string' };
         }
@@ -732,7 +726,7 @@ const getItems = properties => properties.map(convertGraphSonToSchema);
 const convertGraphSonToSchema = graphSON => {
     if (_.isArray(graphSON)) {
         const items = getItems(graphSON);
-        const typeOfItems = items[0].type;
+        const typeOfItems = items[0]?.type;
 
         return {
             type: 'list',
@@ -753,7 +747,7 @@ const convertGraphSonToSchema = graphSON => {
     const rawProperties = graphSON['@value'];
 
     if (typeData.type === 'geoshape') {
-        return typeData;
+        return { ...typeData, ...getSnippet(rawProperties) };
     }
 
     if (rawType === 'g:Map') {

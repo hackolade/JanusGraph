@@ -1,6 +1,6 @@
 {
 	"name": "geoshape-line",
-	"parentType": "array",
+	"parentType": "document",
 	"properties": [
 		{
 			"name": "coordinates",

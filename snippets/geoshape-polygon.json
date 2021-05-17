@@ -10,74 +10,79 @@
 					"type": "array",
 					"properties": [
 						{
-							"type": "number",
-							"mode": "double",
-							"sample": 35.4
+							"type": "array",
+							"properties": [
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 35.4
+								},
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 48.9
+								}
+							]
 						},
 						{
-							"type": "number",
-							"mode": "double",
-							"sample": 48.9
-						}
-					]
-				},
-				{
-					"type": "array",
-					"properties": [
-						{
-							"type": "number",
-							"mode": "double",
-							"sample": 35.6
+							"type": "array",
+							"properties": [
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 35.6
+								},
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 48.9
+								}
+							]
 						},
 						{
-							"type": "number",
-							"mode": "double",
-							"sample": 48.9
-						}
-					]
-				},
-				{
-					"type": "array",
-					"properties": [
-						{
-							"type": "number",
-							"mode": "double",
-							"sample": 35.6
+							"type": "array",
+							"properties": [
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 35.6
+								},
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 49.1
+								}
+							]
 						},
 						{
-							"type": "number",
-							"mode": "double",
-							"sample": 49.1
-						}
-					]
-				},
-				{
-					"type": "array",
-					"properties": [
-						{
-							"type": "number",
-							"mode": "double",
-							"sample": 35.4
+							"type": "array",
+							"properties": [
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 35.4
+								},
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 49.1
+								}
+							]
 						},
 						{
-							"type": "number",
-							"mode": "double",
-							"sample": 49.1
-						}
-					]
-				},
-				{
-					"type": "array",
-					"properties": [
-						{
-							"type": "number",
-							"mode": "double",
-							"sample": 35.4
-						},
-						{
-							"type": "number",
-							"mode": "double",
-							"sample": 48.9
+							"type": "array",
+							"properties": [
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 35.4
+								},
+								{
+									"type": "number",
+									"mode": "double",
+									"sample": 48.9
+								}
+							]
 						}
 					]
 				}
