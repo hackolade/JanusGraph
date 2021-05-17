@@ -23,5 +23,6 @@
 			"INCLUDE_SAMPLES"
 		]
 	},
-	"applyScriptToInstance": true
+	"applyScriptToInstance": true,
+	"resolvedDefinitions": true
 }

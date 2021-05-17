@@ -1,14 +1,19 @@
-const { setInManagement, transformToValidGremlinName, getTTlScript } = require('./common');
+const {
+    setInManagement,
+    transformToValidGremlinName,
+    getTTlScript,
+} = require('./common');
 
 let _ = null;
 const setDependencies = app => (_ = app.require('lodash'));
 
-const generatePropertyKeys = ({ traversalSource, collections, relationships, app }) => {
+const generatePropertyKeys = ({ traversalSource, collections, relationships, app, modelDefinitions }) => {
     setDependencies(app);
 
     const allProperties = Object.fromEntries(
         collections
             .concat(relationships)
+            .concat(modelDefinitions)
             .flatMap(collection => (collection.properties ? Object.entries(collection.properties) : []))
     );
 

@@ -53,7 +53,7 @@ const getTTLUnit = ttlUnit => {
 const getItemPropertyKeys = (itemName, properties = []) =>
     properties.length === 0 ? '' : `mgmt.addProperties(${itemName}, ${properties.join(', ')})`;
 
-const getPropertyKeyGetScript = propertyName => `${propertyName} = mgmt.getPropertyKey('${propertyName}')`
+const getPropertyKeyGetScript = propertyName => `${propertyName} = mgmt.getPropertyKey('${propertyName}')`;
 
 module.exports = {
     transformToValidGremlinName,

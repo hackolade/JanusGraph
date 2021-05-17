@@ -6,7 +6,7 @@ const { generateVertices } = require('./vertexLabelHelper');
 let _ = null;
 const setDependencies = app => (_ = app.require('lodash'));
 
-const generateJanusGraphSchema = ({ collections, relationships, jsonData, containerData, app }) => {
+const generateJanusGraphSchema = ({ collections, relationships, containerData, app, modelDefinitions }) => {
     setDependencies(app);
 
     const containerTraversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
@@ -15,9 +15,12 @@ const generateJanusGraphSchema = ({ collections, relationships, jsonData, contai
     const parsedCollections = collections.map(JSON.parse);
     const parsedRelationships = relationships.map(JSON.parse);
 
+    const parsedModelDefinitions = JSON.parse(modelDefinitions);
+
     const propertyKeysScript = generatePropertyKeys({
         collections: parsedCollections,
         relationships: parsedRelationships,
+        modelDefinitions: parsedModelDefinitions,
         traversalSource,
         app,
     });
