@@ -319,7 +319,7 @@ const getRelationshipData = ({ schema, dbName, recordSamplingSettings, fieldInfe
                             level: 'entity',
                             documents,
                             validation: {
-                                jsonSchema: schema,
+                                jsonSchema: convertSchemaToRefs(schema),
                             },
                             relationshipInfo: {
                                 biDirectional: chain.biDirectional,
@@ -411,10 +411,13 @@ const convertSchemaToRefs = schema => {
     return {
         ...schema,
         properties: Object.fromEntries(
-            Object.entries(schema.properties || {}).map(([name, property]) => ([name, {
-                $ref: `#/definitions/${name}`,
-                ...(property.metaProperties && { metaProperties: property.metaProperties }),
-            }]))
+            Object.entries(schema.properties || {}).map(([name, property]) => [
+                name,
+                {
+                    $ref: `#/definitions/${name}`,
+                    ...(property.metaProperties && { metaProperties: property.metaProperties }),
+                },
+            ])
         ),
     };
 };

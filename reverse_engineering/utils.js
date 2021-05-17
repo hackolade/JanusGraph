@@ -50,7 +50,7 @@ const getType = propertyType => {
         case 'java.util.Date':
             return { type: 'number', mode: 'date' };
         case 'org.janusgraph.core.attribute.Geoshape':
-            return { type: 'geoshape', subType: 'wkt', ...getDefaultSnippet() };
+            return { type: 'geoshape' };
         case 'java.util.UUID':
             return { type: 'uuid' };
         case 'java.util.HashMap':
@@ -111,26 +111,14 @@ const getSSLConfig = info => {
     }
 };
 
-const getDefaultSnippet = () => {
-    return {
-        properties: [
-            {
-                name: 'WKT',
-                type: 'string',
-            },
-        ],
-    };
-};
-
 const getListNumberProperties = mode => [{ type: 'number', mode }];
 
-const getListSubtypeByItemType = itemType => `list<${itemType}>`
+const getListSubtypeByItemType = itemType => `list<${itemType}>`;
 
 module.exports = {
     getKeyType,
     getTTL,
     getPropertyData,
     getSSLConfig,
-    getDefaultSnippet,
     getListSubtypeByItemType,
 };
