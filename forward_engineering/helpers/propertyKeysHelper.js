@@ -1,4 +1,4 @@
-const { setInManagement, transformToValidGremlinName } = require('./common');
+const { setInManagement, transformToValidGremlinName, getTTlScript } = require('./common');
 
 let _ = null;
 const setDependencies = app => (_ = app.require('lodash'));
@@ -30,7 +30,10 @@ const getPropertyScript = (name, fieldData) => {
     });
     const cardinality = _.toUpper(fieldData.propCardinality) || 'SINGLE';
 
-    return `${name} = mgmt.makePropertyKey('${name}').dataType(${dataType}).cardinality(org.janusgraph.core.Cardinality.${cardinality}).make()`;
+    const createScript = `${name} = mgmt.makePropertyKey('${name}').dataType(${dataType}).cardinality(org.janusgraph.core.Cardinality.${cardinality}).make()`;
+    const ttlScript = getTTlScript(name, fieldData.propertyTTL);
+
+    return [createScript, ttlScript].filter(Boolean).join('\n');
 };
 
 const getDataTypeClass = ({ type, mode, subtype, firstItem }) => {
