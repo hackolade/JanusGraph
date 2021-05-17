@@ -7,7 +7,6 @@ const setDependencies = app => (_ = app.require('lodash'));
 const generateGremlinDataSamples = ({ collections, relationships, jsonData, containerData, app }) => {
     setDependencies(app);
 
-    let resultScript = '';
     const traversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
     const graphName = transformToValidGremlinName(traversalSource);
     const parsedCollections = collections.map(JSON.parse);
@@ -18,19 +17,9 @@ const generateGremlinDataSamples = ({ collections, relationships, jsonData, cont
     const verticesScript = generateVertices(parsedCollections, jsonData, graphName);
     const edgesScript = generateEdges(parsedCollections, parsedRelationships, jsonData, graphName);
 
-    if (variablesScript) {
-        resultScript += variablesScript + '\n';
-    }
-
-    if (verticesScript) {
-        resultScript += verticesScript;
-    }
-
-    if (edgesScript) {
-        resultScript += '\n\n' + edgesScript;
-    }
-
-    return resultScript;
+    return [variablesScript, verticesScript, edgesScript, `${graphName}.tx().commit();`]
+        .filter(Boolean)
+        .join('\n\n\n');
 };
 
 const generateVariables = variables => {
@@ -55,9 +44,9 @@ const generateVariables = variables => {
 
 const generateVertex = (collection, vertexData, graphName) => {
     const vertexName = transformToValidGremlinName(collection.collectionName);
-    const propertiesScript = addPropertiesScript(collection, vertexData);
+    const propertiesScript = addPropertiesScript(collection, vertexData, vertexName);
 
-    return `${graphName}.getGraph().addVertex(${JSON.stringify(vertexName)})${propertiesScript}`;
+    return `${vertexName} = ${graphName}.getGraph().addVertex(${JSON.stringify(vertexName)});${propertiesScript}`;
 };
 
 const generateVertices = (collections, jsonData, graphName) => {
@@ -67,53 +56,42 @@ const generateVertices = (collections, jsonData, graphName) => {
         return generateVertex(collection, vertexData, graphName);
     });
 
-    const script = vertices.join(';\n\n');
+    const script = vertices.join('\n\n');
     if (!script) {
         return '';
     }
 
-    return script + ';';
+    return script;
 };
 
 const generateEdge = (from, to, relationship, edgeData, graphName) => {
     const edgeName = transformToValidGremlinName(relationship.name);
-    const propertiesScript = addPropertiesScript(relationship, edgeData);
+    const propertiesScript = addPropertiesScript(relationship, edgeData, edgeName);
 
-    return `${from}.\n${DEFAULT_INDENT}addEdge(${JSON.stringify(
-        edgeName
-    )}).\n${DEFAULT_INDENT}to(${to})${propertiesScript}`;
+    return `${edgeName} = ${from}.\n${DEFAULT_INDENT}addEdge(${JSON.stringify(edgeName)}, ${to});${propertiesScript}`;
 };
 
-const getVertexVariableScript = (vertexName, graphName) =>
-    `${graphName}.V().hasLabel(${JSON.stringify(vertexName)}).next()`;
-
 const generateEdges = (collections, relationships, jsonData, graphName) => {
-    const edges = relationships.reduce((edges, relationship) => {
-        const parentCollection = collections.find(collection => collection.GUID === relationship.parentCollection);
-        const childCollection = collections.find(collection => collection.GUID === relationship.childCollection);
-        if (!parentCollection || !childCollection) {
-            return edges;
-        }
-        const from = transformToValidGremlinName(parentCollection.collectionName);
-        const to = transformToValidGremlinName(childCollection.collectionName);
-        const edgeData = JSON.parse(jsonData[relationship.GUID]);
+    const edges = relationships
+        .reduce((edges, relationship) => {
+            const parentCollection = collections.find(collection => collection.GUID === relationship.parentCollection);
+            const childCollection = collections.find(collection => collection.GUID === relationship.childCollection);
+            if (!parentCollection || !childCollection) {
+                return edges;
+            }
+            const from = transformToValidGremlinName(parentCollection.collectionName);
+            const to = transformToValidGremlinName(childCollection.collectionName);
+            const edgeData = JSON.parse(jsonData[relationship.GUID]);
 
-        return edges.concat(
-            generateEdge(
-                getVertexVariableScript(from, graphName),
-                getVertexVariableScript(to, graphName),
-                relationship,
-                edgeData,
-                graphName
-            )
-        );
-    }, []);
+            return edges.concat(generateEdge(from, to, relationship, edgeData, graphName));
+        }, [])
+        .join('\n\n');
 
     if (_.isEmpty(edges)) {
         return '';
     }
 
-    return edges.join(';\n\n') + ';';
+    return edges;
 };
 
 const getDefaultMetaPropertyValue = type => {
@@ -255,7 +233,7 @@ const resolveChoices = (choices, properties) => {
     }, properties || {});
 };
 
-const addPropertiesScript = (collection, vertexData) => {
+const addPropertiesScript = (collection, vertexData, itemName) => {
     const properties = _.get(collection, 'properties', {});
 
     const choices = getChoices(collection);
@@ -276,9 +254,7 @@ const addPropertiesScript = (collection, vertexData) => {
 
         return (
             script +
-            `.\n${DEFAULT_INDENT}property(${property.propCardinality}, ${JSON.stringify(
-                name
-            )}, ${valueScript}${metaPropertiesScript})`
+            `\n${DEFAULT_INDENT}${itemName}.property(${JSON.stringify(name)}, ${valueScript}${metaPropertiesScript});`
         );
     }, '');
 };
@@ -310,7 +286,7 @@ const convertMap = (property, level, value) => {
         mapValue = mapValue.slice(2);
     }
 
-    return `[${mapValue}\n${previousIndent}]`;
+    return `new HashMap([${mapValue}\n${previousIndent}])`;
 };
 
 const convertList = (property, level, value) => {
