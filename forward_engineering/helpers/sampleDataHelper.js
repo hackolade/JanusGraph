@@ -1,11 +1,12 @@
-const { transformToValidGremlinName, DEFAULT_INDENT } = require("./common");
+const { transformToValidGremlinName, DEFAULT_INDENT } = require('./common');
+const { getGeoshapeSample } = require('./geoshapeHelper');
 
-let _ = null
-const setDependencies = app => _ = app.require('lodash');
+let _ = null;
+const setDependencies = app => (_ = app.require('lodash'));
 
 const generateGremlinDataSamples = ({ collections, relationships, jsonData, containerData, app }) => {
-    setDependencies(app)
-    
+    setDependencies(app);
+
     let resultScript = '';
     const traversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
     const graphName = transformToValidGremlinName(traversalSource);
@@ -42,12 +43,12 @@ const generateVariables = variables => {
         try {
             const parsedValue = JSON.parse(value);
             if (!_.isString(parsedValue)) {
-                return script + `graph.variables().set("${key}", ${value});\n`;
+                return script + `${graphName}.getGraph().variables().set("${key}", ${value});\n`;
             }
 
-            return script + `graph.variables().set("${key}", "${value}");\n`;
+            return script + `${graphName}.getGraph().variables().set("${key}", "${value}");\n`;
         } catch (e) {
-            return script + `graph.variables().set("${key}", "${value}");\n`;
+            return script + `${graphName}.getGraph().variables().set("${key}", "${value}");\n`;
         }
     }, '');
 };
@@ -56,7 +57,7 @@ const generateVertex = (collection, vertexData, graphName) => {
     const vertexName = transformToValidGremlinName(collection.collectionName);
     const propertiesScript = addPropertiesScript(collection, vertexData);
 
-    return `${graphName}.addV(${JSON.stringify(vertexName)})${propertiesScript}`;
+    return `${graphName}.getGraph().addVertex(${JSON.stringify(vertexName)})${propertiesScript}`;
 };
 
 const generateVertices = (collections, jsonData, graphName) => {
@@ -78,9 +79,9 @@ const generateEdge = (from, to, relationship, edgeData, graphName) => {
     const edgeName = transformToValidGremlinName(relationship.name);
     const propertiesScript = addPropertiesScript(relationship, edgeData);
 
-    return `${graphName}.addE(${JSON.stringify(
+    return `${from}.\n${DEFAULT_INDENT}addEdge(${JSON.stringify(
         edgeName
-    )}).\n${DEFAULT_INDENT}from(${from}).\n${DEFAULT_INDENT}to(${to})${propertiesScript}`;
+    )}).\n${DEFAULT_INDENT}to(${to})${propertiesScript}`;
 };
 
 const getVertexVariableScript = (vertexName, graphName) =>
@@ -121,15 +122,13 @@ const getDefaultMetaPropertyValue = type => {
         case 'list':
             return '[]';
         case 'set':
-            return '[].toSet()';
+            return '[]';
         case 'string':
             return '"Lorem"';
         case 'number':
             return '1';
         case 'date':
             return 'new Date()';
-        case 'timestamp':
-            return 'new java.sql.Timestamp(1234567890123)';
         case 'uuid':
             return 'UUID.randomUUID()';
         case 'boolean':
@@ -157,38 +156,6 @@ const handleMetaProperties = metaProperties => {
     }, []);
 
     return metaPropertiesFlatList.join(', ');
-};
-
-const handleMultiProperty = (property, name, jsonData) => {
-    let properties = _.get(property, 'items', []);
-    if (!_.isArray(properties)) {
-        properties = [properties];
-    }
-    if (properties.length === 1) {
-        properties = [...properties, ...properties];
-        jsonData.push(_.first(jsonData));
-    }
-
-    const type = property.childType || property.type;
-    const nameString = JSON.stringify(name);
-    const propertiesValues = properties.map((property, index) =>
-        convertPropertyValue(property, 2, type, jsonData[index])
-    );
-    const metaProperties = properties.map(property => {
-        const metaPropertiesScript = handleMetaProperties(property.metaProperties);
-        if (_.isEmpty(metaPropertiesScript)) {
-            return '';
-        }
-
-        return ', ' + metaPropertiesScript;
-    });
-    const cardinalities = properties.map(childProperty => childProperty.propCardinality || property.propCardinality);
-
-    return propertiesValues.reduce(
-        (script, valueScript, index) =>
-            `${script}.\n${DEFAULT_INDENT}property(${cardinalities[index]}, ${nameString}, ${valueScript}${metaProperties[index]})`,
-        ''
-    );
 };
 
 const getChoices = item => {
@@ -305,9 +272,6 @@ const addPropertiesScript = (collection, vertexData) => {
         if (!_.isEmpty(metaPropertiesScript)) {
             metaPropertiesScript = ', ' + metaPropertiesScript;
         }
-        if (type === 'multi-property') {
-            return script + `${handleMultiProperty(property, name, vertexData[name])}`;
-        }
         const valueScript = convertPropertyValue(property, 2, type, vertexData[name]);
 
         return (
@@ -319,7 +283,7 @@ const addPropertiesScript = (collection, vertexData) => {
     }, '');
 };
 
-const isGraphSONType = type => ['map', 'set', 'list', 'timestamp', 'date', 'uuid', 'number'].includes(type);
+const isGraphSONType = type => ['map', 'set', 'list', 'date', 'uuid', 'number', 'geoshape'].includes(type);
 
 const convertMap = (property, level, value) => {
     const choices = getChoices(property);
@@ -372,16 +336,7 @@ const convertList = (property, level, value) => {
     return `[${listValue}]`;
 };
 
-const convertSet = (property, level, value) => {
-    const setValue = convertList(property, level, value);
-
-    return `${setValue}.toSet()`;
-};
-
-const convertTimestamp = value => `new java.sql.Timestamp(${JSON.stringify(value)})`;
-
-const convertDate = value =>
-    `new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX").parse(${JSON.stringify(value)})`;
+const convertDate = value => `new java.text.SimpleDateFormat("yyyy-MM-dd").parse(${JSON.stringify(value)})`;
 
 const convertUUID = value => `UUID.fromString(${JSON.stringify(value)})`;
 
@@ -396,6 +351,10 @@ const convertNumber = (property, value) => {
             return `${numberValue}f`;
         case 'long':
             return `${numberValue}l`;
+        case 'byte':
+            return `(byte)${numberValue}`;
+        case 'short':
+            return `(short)${numberValue}`;
     }
 
     return numberValue;
@@ -412,20 +371,20 @@ const convertPropertyValue = (property, level, type, value) => {
         case 'map':
             return convertMap(property, level, value);
         case 'set':
-            return convertSet(property, level, value);
+            return convertList(property, level, value);
         case 'list':
             return convertList(property, level, value);
-        case 'timestamp':
-            return convertTimestamp(value);
         case 'date':
             return convertDate(value);
         case 'number':
             return convertNumber(property, value);
+        case 'geoshape':
+            return getGeoshapeSample(property, { lodash: _ });
     }
 
     return convertMap(property, level, value);
 };
 
-module.exports ={
-    generateGremlinDataSamples
-}
+module.exports = {
+    generateGremlinDataSamples,
+};
