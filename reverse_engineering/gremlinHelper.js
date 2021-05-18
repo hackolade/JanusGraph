@@ -516,6 +516,11 @@ const mergeSchemas = (a, b) => {
     if (_.isEmpty(b)) {
         b = {};
     }
+
+    if(a.type === 'geoshape' || b.type === 'geoshape') {
+        return Object.assign({}, a, b);;
+    }
+
     const properties = getMergedProperties(a, b);
     const items = getMergedItems(a, b);
 
