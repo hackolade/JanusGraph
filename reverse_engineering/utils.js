@@ -115,10 +115,18 @@ const getListNumberProperties = mode => [{ type: 'number', mode }];
 
 const getListSubtypeByItemType = itemType => `list<${itemType}>`;
 
+const prepareError = error => {
+    return {
+        message: error.message,
+        stack: error.stack,
+    };
+};
+
 module.exports = {
     getKeyType,
     getTTL,
     getPropertyData,
     getSSLConfig,
     getListSubtypeByItemType,
+    prepareError,
 };

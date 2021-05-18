@@ -3,6 +3,7 @@
 const async = require('async');
 const _ = require('lodash');
 const gremlinHelper = require('./gremlinHelper');
+const { prepareError } = require('./utils');
 
 module.exports = {
     connect: function (connectionInfo, logger, cb) {
@@ -136,7 +137,7 @@ module.exports = {
 
                         return gremlinHelper
                             .getRelationshipsLabels()
-                            .then(gremlinHelper.getRelationshipSchema)
+                            .then(gremlinHelper.getRelationshipSchema(logger, getCount(10000, recordSamplingSettings)))
                             .then(relationships => relationships.flatMap(relationships => relationships));
                     })
                     .then(schema => {
@@ -398,13 +399,6 @@ const getLabelPackage = ({
     } else {
         return null;
     }
-};
-
-const prepareError = error => {
-    return {
-        message: error.message,
-        stack: error.stack,
-    };
 };
 
 const convertSchemaToRefs = schema => {

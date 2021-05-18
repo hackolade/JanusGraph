@@ -3,7 +3,14 @@ let sshTunnel;
 const fs = require('fs');
 const ssh = require('tunnel-ssh');
 const gremlin = require('gremlin');
-const { getTTL, getKeyType, getPropertyData, getSSLConfig, getListSubtypeByItemType } = require('./utils');
+const {
+    getTTL,
+    getKeyType,
+    getPropertyData,
+    getSSLConfig,
+    getListSubtypeByItemType,
+    prepareError,
+} = require('./utils');
 const { getSnippet } = require('./helpers/snippetHelper');
 
 let client;
@@ -82,6 +89,8 @@ const connectToInstance = info => {
             `${protocol}://${host}:${port}/gremlin`,
             Object.assign(
                 {
+                    pongTimeout: info.queryRequestTimeout,
+                    pingTimeout: info.queryRequestTimeout,
                     authenticator,
                     traversalSource,
                 },
@@ -129,54 +138,76 @@ const getLabels = () => {
     ]).then(([labels1, labels2]) => _.concat(labels1.toArray(), labels2.toArray()));
 };
 
-const getRelationshipSchema = (labels, limit = 100) => {
-    return Promise.all(
-        labels.map(label => {
-            return Promise.all([
-                client.submit(
-                    `${state.traversalSource}
-						.getGraph()
-						.openManagement()
-						.getEdgeLabel('${label.name}')
-						.mappedConnections()
-						.collect{connection -> [
-							"relationship": '${label.name}',
-							"start": connection.getOutgoingVertexLabel().name(),
-							"end": connection.getIncomingVertexLabel().name()
-						]}
-						.toList()
-						`
-                ),
-                client.submit(`
-					${state.traversalSource}
-					.E()
-					.hasLabel('${label.name}')
-					.limit(${limit})
-					.collect{edgeLabel -> [
-						"relationship": '${label.name}',
-						"start": edgeLabel.getVertex(0).label(),
-						"end": edgeLabel.getVertex(1).label()
-					]}
-					.toList()`),
-            ]).then(([schemaEdges, dataEdges]) => {
-                const relationships = schemaEdges
-                    .toArray()
-                    .concat(dataEdges.toArray())
-                    .map(relationship => ({
-                        start: relationship.get('start'),
-                        relationship: relationship.get('relationship'),
-                        end: relationship.get('end'),
-                        multiplicity: label.multiplicity,
-                        biDirectional: label.biDirectional,
-                        properties: label.properties,
-                        ...(label.edgeTTL ? { edgeTTL: label.edgeTTL } : {}),
-                    }));
+const getRelationshipSchema =
+    (logger, limit = 100) =>
+    labels => {
+        let edgesData = [];
 
-                return _.uniqWith(relationships, _.isEqual);
-            });
-        })
-    );
-};
+        return Promise.all(
+            labels.map(label => {
+                const mapRelationship = relationship => ({
+                    start: relationship.get('start'),
+                    relationship: relationship.get('relationship'),
+                    end: relationship.get('end'),
+                    multiplicity: label.multiplicity,
+                    biDirectional: label.biDirectional,
+                    properties: label.properties,
+                    ...(label.edgeTTL ? { edgeTTL: label.edgeTTL } : {}),
+                });
+
+                return client
+                    .submit(
+                        `${state.traversalSource}
+                        .E()
+                        .hasLabel('${label.name}')
+                        .limit(${limit})
+                        .collect{edgeLabel -> [
+                            "relationship": '${label.name}',
+                            "start": edgeLabel.getVertex(0).label(),
+                            "end": edgeLabel.getVertex(1).label()
+                        ]}
+                        .toList()`
+                    )
+                    .then(dataEdges => {
+                        edgesData = _.uniqWith(dataEdges.toArray().map(mapRelationship), _.isEqual);
+                    })
+                    .catch(error =>
+                        logger.log('error', prepareError(error), 'Error while retrieving connections from data')
+                    )
+                    .then(() =>
+                        client.submit(
+                            `${state.traversalSource}.
+						    getGraph().
+						    openManagement().
+						    getEdgeLabel('${label.name}').
+						    mappedConnections().
+                            inject([]) {accumulator, connection -> 
+                                def currentConnection = [ 
+                                    "relationship": '${label.name}', 
+                                    "start": connection.getOutgoingVertexLabel().name(), 
+                                    "end": connection.getIncomingVertexLabel().name() 
+                                ]
+                                def temp = accumulator.findAll {it -> it.start == currentConnection.start && it.end == currentConnection.end }.size
+                                temp == 0 ? accumulator.add(currentConnection) : accumulator
+                                accumulator
+                            }.
+						    toList()
+                        `
+                        )
+                    )
+                    .then(schemaEdges => {
+                        const relationships = schemaEdges.toArray().map(mapRelationship);
+
+                        return _.uniqWith(relationships.concat(edgesData), _.isEqual);
+                    })
+                    .catch(error => {
+                        logger.log('error', prepareError(error), 'Error while retrieving connections with management');
+
+                        return edgesData;
+                    });
+            })
+        );
+    };
 
 const getDatabaseName = () => {
     return Promise.resolve(state.traversalSource);
@@ -377,41 +408,43 @@ const convertRootPropertyValue = (cardinality, property) => {
     return Object.assign({}, convertGraphSonToSchema(_.first(value)), { propCardinality: cardinality });
 };
 
-const convertRootGraphSON = (propertyKeys = {}, propertyNames = []) => propertiesMap => {
-    if (_.get(propertiesMap, '@type') !== 'g:Map') {
-        return {};
-    }
+const convertRootGraphSON =
+    (propertyKeys = {}, propertyNames = []) =>
+    propertiesMap => {
+        if (_.get(propertiesMap, '@type') !== 'g:Map') {
+            return {};
+        }
 
-    const properties = propertiesMap['@value'];
-    const { keys, values } = properties.reduce(
-        ({ keys, values }, property, index) => {
-            if (index % 2) {
-                const cardinality = state.defaultCardinality;
-                return { keys, values: [...values, convertRootPropertyValue(cardinality, property)] };
-            }
+        const properties = propertiesMap['@value'];
+        const { keys, values } = properties.reduce(
+            ({ keys, values }, property, index) => {
+                if (index % 2) {
+                    const cardinality = state.defaultCardinality;
+                    return { keys, values: [...values, convertRootPropertyValue(cardinality, property)] };
+                }
 
-            if (_.isObject(property)) {
-                return { keys, values };
-            }
+                if (_.isObject(property)) {
+                    return { keys, values };
+                }
 
-            return {
-                keys: [...keys, String(property)],
-                values,
-            };
-        },
-        { keys: [], values: [] }
-    );
+                return {
+                    keys: [...keys, String(property)],
+                    values,
+                };
+            },
+            { keys: [], values: [] }
+        );
 
-    const propertiesDocument = _.concat(keys, propertyNames).reduce(
-        (properties, key, index) => ({
-            ...properties,
-            [key]: mergePropertyKey(values[index] || {}, propertyKeys[key]),
-        }),
-        {}
-    );
+        const propertiesDocument = _.concat(keys, propertyNames).reduce(
+            (properties, key, index) => ({
+                ...properties,
+                [key]: mergePropertyKey(values[index] || {}, propertyKeys[key]),
+            }),
+            {}
+        );
 
-    return { properties: propertiesDocument };
-};
+        return { properties: propertiesDocument };
+    };
 
 const mergePropertyKey = (propertyKeyLeft = {}, propertyKeyRight = {}) => {
     if (propertyKeyLeft.type === 'set') {
@@ -600,6 +633,8 @@ const submitGraphSONDataScript = query => {
     return client.submit(
         `GraphSONMapper.
 			build().
+            typeInfo(org.apache.tinkerpop.gremlin.structure.io.graphson.TypeInfo.PARTIAL_TYPES).
+            addCustomModule(org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV2d0.build().create(false)).
 			version(GraphSONVersion.V3_0).
 			addRegistry(JanusGraphIoRegistry.instance()).
 			create().
@@ -693,6 +728,12 @@ const getType = rawType => {
             return { type: 'uuid' };
         case 'janusgraph:Geoshape':
             return { type: 'geoshape' };
+        case 'gx:Char':
+            return { type: 'char' };
+        case 'gx:Byte':
+            return { type: 'number', mode: 'byte' };
+        case 'gx:Int16':
+            return { type: 'number', mode: 'short' };
         default: {
             return { type: 'string' };
         }
