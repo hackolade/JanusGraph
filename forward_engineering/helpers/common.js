@@ -1,4 +1,5 @@
 const DEFAULT_INDENT = '    ';
+const NEW_LINE_DOUBLE_INDENT = `\n${DEFAULT_INDENT}${DEFAULT_INDENT}`;
 
 let _ = null;
 const setCommonDependencies = app => (_ = app.require('lodash'));
@@ -63,4 +64,5 @@ module.exports = {
     getItemPropertyKeys,
     getPropertyKeyGetScript,
     DEFAULT_INDENT,
+    NEW_LINE_DOUBLE_INDENT,
 };
