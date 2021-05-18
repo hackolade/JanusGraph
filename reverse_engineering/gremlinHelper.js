@@ -141,10 +141,10 @@ const getLabels = () => {
 const getRelationshipSchema =
     (logger, limit = 100) =>
     labels => {
-        let edgesData = [];
-
         return Promise.all(
             labels.map(label => {
+                let edgesData = [];
+
                 const mapRelationship = relationship => ({
                     start: relationship.get('start'),
                     relationship: relationship.get('relationship'),
@@ -517,8 +517,8 @@ const mergeSchemas = (a, b) => {
         b = {};
     }
 
-    if(a.type === 'geoshape' || b.type === 'geoshape') {
-        return Object.assign({}, a, b);;
+    if (a.type === 'geoshape' || b.type === 'geoshape') {
+        return Object.assign({}, a, b);
     }
 
     const properties = getMergedProperties(a, b);
