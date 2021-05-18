@@ -208,7 +208,11 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Key",
 						"propertyKeyword": "indexKey",
 						"propertyType": "fieldList",
-						"template": "orderedList"
+						"template": "orderedList",
+						"templateOptions": {
+							"entityName": false,
+							"addType": false
+						}
 					},
 					{
 						"propertyName": "Index only label",
@@ -254,35 +258,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Backend engine",
 						"propertyKeyword": "indexingBackend",
 						"propertyTooltip": "Each indexing backend must be uniquely identified by name in the JanusGraph configuration.",
-						"propertyType": "select",
-						"options": [
-							"search",
-							"elasticsearch",
-							"lucene",
-							"solr"
-						]
-					},
-					{
-						"propertyName": "Key",
-						"propertyKeyword": "indexKey",
-						"propertyType": "fieldList",
-						"template": "orderedList",
-						"attributeList": [
-							"TEXT",
-							"STRING",
-							"PREFIX_TREE"
-						],
-						"dependency": {
-							"type": "or",
-							"values": [{
-								"key": "indexingBackend",
-								"value": "Element"
-							},{
-								"key": "indexingBackend",
-								"value": "Attribute"
-							}]
-						}
-
+						"propertyType": "text"
 					},
 					{
 						"propertyName": "Key",
@@ -295,9 +271,9 @@ making sure that you maintain a proper JSON format.
 							"TEXTSTRING",
 							"PREFIX_TREE"
 						],
-						"dependency": {
-							"key": "indexingBackend",
-							"value": "elasticsearch"
+						"templateOptions": {
+							"entityName": false,
+							"addType": false
 						}
 					},
 					{
@@ -336,6 +312,13 @@ making sure that you maintain a proper JSON format.
 						"attributeList": [
 							"ascending",
 							"descending"
+						],
+						"templateOptions": {
+							"entityName": false,
+							"addType": false
+						},
+						"entityLevels": [
+							"relationship"
 						]
 					},
 					{

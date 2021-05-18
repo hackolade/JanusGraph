@@ -1,0 +1,108 @@
+{
+	"name": "geoshape-geometrycollection",
+	"parentType": "document",
+	"properties": [
+		{
+			"name": "geometries",
+			"type": "array",
+			"properties": [
+				{
+					"type": "geoshape",
+					"additionalProperties": false,
+					"properties": [],
+					"subType": "wkt",
+					"subTypes": [
+						{
+							"name": "wkt",
+							"snippet": "geoshape-wkt"
+						},
+						{
+							"name": "point",
+							"snippet": "geoshape-point"
+						},
+						{
+							"name": "box",
+							"snippet": "geoshape-box"
+						},
+						{
+							"name": "circle",
+							"snippet": "geoshape-circle"
+						},
+						{
+							"name": "line",
+							"snippet": "geoshape-line"
+						},
+						{
+							"name": "polygon",
+							"snippet": "geoshape-polygon"
+						},
+						{
+							"name": "multipoint",
+							"snippet": "geoshape-multipoint"
+						},
+						{
+							"name": "multilinestring",
+							"snippet": "geoshape-multilinestring"
+						},
+						{
+							"name": "multipolygon",
+							"snippet": "geoshape-multipolygon"
+						},
+						{
+							"name": "geometrycollection",
+							"snippet": "geoshape-geometrycollection"
+						}
+					]
+				},
+				{
+					"type": "geoshape",
+					"additionalProperties": false,
+					"properties": [],
+					"subType": "wkt",
+					"subTypes": [
+						{
+							"name": "wkt",
+							"snippet": "geoshape-wkt"
+						},
+						{
+							"name": "point",
+							"snippet": "geoshape-point"
+						},
+						{
+							"name": "box",
+							"snippet": "geoshape-box"
+						},
+						{
+							"name": "circle",
+							"snippet": "geoshape-circle"
+						},
+						{
+							"name": "line",
+							"snippet": "geoshape-line"
+						},
+						{
+							"name": "polygon",
+							"snippet": "geoshape-polygon"
+						},
+						{
+							"name": "multipoint",
+							"snippet": "geoshape-multipoint"
+						},
+						{
+							"name": "multilinestring",
+							"snippet": "geoshape-multilinestring"
+						},
+						{
+							"name": "multipolygon",
+							"snippet": "geoshape-multipolygon"
+						},
+						{
+							"name": "geometrycollection",
+							"snippet": "geoshape-geometrycollection"
+						}
+					]
+				}
+			]
+		}
+	]
+}

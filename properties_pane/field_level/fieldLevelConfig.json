@@ -113,7 +113,6 @@ making sure that you maintain a proper JSON format.
 			}
 
 */
-
 {
 	"lowerTab": "JsonDetails",
 	"structure": {
@@ -141,40 +140,38 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -191,7 +188,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -213,6 +209,101 @@ making sure that you maintain a proper JSON format.
 			"maxLength",
 			"pattern",
 			"format",
+			"default",
+			"enum",
+			"dependencies",
+			"sample",
+			"comments"
+		],
+		"character": [
+			"name",
+			"schemaId",
+			"description",
+			"type",
+			{
+				"propertyName": "Property cardinality",
+				"propertyKeyword": "propCardinality",
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"single",
+					"list",
+					"set"
+				]
+			},
+			{
+				"propertyName": "Time-To-Live",
+				"propertyKeyword": "propertyTTL",
+				"propertyType": "block",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "TTLValue",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					},
+					{
+						"propertyName": "Temporal unit",
+						"propertyKeyword": "TTLUnit",
+						"propertyTooltip": "Select from list of options",
+						"propertyType": "select",
+						"options": [
+							"Days",
+							"Hours",
+							"Minutes",
+							"Seconds"
+						]
+					}
+				]
+			},
+			{
+				"propertyName": "Meta-properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
+				"propertyTooltip": "",
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "metaPropName",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Type",
+						"propertyKeyword": "metaPropType",
+						"propertyType": "select",
+						"options": [
+							"string",
+							"uuid",
+							"number",
+							"boolean",
+							"date",
+							"map",
+							"list",
+							"set"
+						],
+						"data": "options",
+						"valueType": "string"
+					},
+					{
+						"propertyName": "Sample",
+						"propertyKeyword": "metaPropSample",
+						"propertyType": "text",
+						"sampleGen": "&containerName|&entityName|&random|<value>"
+					}
+				]
+			},
+			"required",
+			"primaryKey",
 			"default",
 			"enum",
 			"dependencies",
@@ -242,16 +333,15 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -268,7 +358,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -309,28 +398,27 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			"comments"
-		],   
+		],
 		"number": [
 			"name",
 			"schemaId",
@@ -341,6 +429,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "mode",
 				"propertyType": "select",
 				"options": [
+					"byte",
+					"short",
 					"integer",
 					"long",
 					"double",
@@ -368,40 +458,38 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -418,7 +506,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -472,40 +559,38 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -522,7 +607,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -576,40 +660,38 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -626,7 +708,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -646,14 +727,13 @@ making sure that you maintain a proper JSON format.
 			"sample",
 			"comments"
 		],
-		"timestamp": [
+		"___1": [],
+		"geoshape": [
 			"name",
-			"code",
-			"sampleName",
 			"schemaId",
-			"refPath",
 			"description",
 			"type",
+			"subtype",
 			{
 				"propertyName": "Property cardinality",
 				"propertyKeyword": "propCardinality",
@@ -673,40 +753,38 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -723,7 +801,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -740,14 +817,13 @@ making sure that you maintain a proper JSON format.
 				]
 			},
 			"required",
-			"dependencies",
-			"pattern",
 			"default",
 			"enum",
+			"dependencies",
 			"sample",
 			"comments"
 		],
-		"___1": [],
+		"___2": [],
 		"map": [
 			"name",
 			"schemaId",
@@ -761,40 +837,43 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					},
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "multi-property"
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -811,7 +890,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -840,6 +918,24 @@ making sure that you maintain a proper JSON format.
 			"description",
 			"type",
 			{
+				"propertyName": "Subtype",
+				"propertyKeyword": "subtype",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"list<str>",
+					"list<char>",
+					"list<bool>",
+					"list<number>",
+					"list<date>",
+					"list<uuid>",
+					"list<geoshape>",
+					"list<list>",
+					"list<set>",
+					"list<map>"
+				]
+			},
+			{
 				"propertyName": "Time-To-Live",
 				"propertyKeyword": "propertyTTL",
 				"propertyType": "block",
@@ -847,40 +943,43 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					},
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "multi-property"
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -897,7 +996,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -930,6 +1028,24 @@ making sure that you maintain a proper JSON format.
 			"description",
 			"type",
 			{
+				"propertyName": "Subtype",
+				"propertyKeyword": "subtype",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"set<str>",
+					"set<char>",
+					"set<bool>",
+					"set<number>",
+					"set<date>",
+					"set<uuid>",
+					"set<geoshape>",
+					"set<list>",
+					"set<set>",
+					"set<map>"
+				]
+			},
+			{
 				"propertyName": "Time-To-Live",
 				"propertyKeyword": "propertyTTL",
 				"propertyType": "block",
@@ -937,40 +1053,43 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "propertyTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "propertyTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
-					}				]
+					}
+				]
 			},
 			{
 				"propertyName": "Meta-properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProperties",
+				"enableForReference": true,
 				"propertyTooltip": "",
-				"dependency": [{
-					"level": "parent",
-					"key": "collectionName",
-					"exist": true
-				},{
-					"level": "parent",
-					"key": "childType",
-					"value": "multi-property"
-				}],
+				"dependency": [
+					{
+						"level": "parent",
+						"key": "collectionName",
+						"exist": true
+					},
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "multi-property"
+					}
+				],
 				"structure": [
 					{
 						"propertyName": "Name",
@@ -987,7 +1106,6 @@ making sure that you maintain a proper JSON format.
 							"number",
 							"boolean",
 							"date",
-							"timestamp",
 							"map",
 							"list",
 							"set"
@@ -1011,14 +1129,15 @@ making sure that you maintain a proper JSON format.
 			"additionalItems",
 			"comments"
 		],
-		"___2": [],
-		"multi-property": [
+		"___3": [],
+		"array": [
 			"name",
 			"schemaId",
+			"refPath",
 			"description",
 			"type",
-			"required",
 			"dependencies",
+			"required",
 			"minItems",
 			"maxItems",
 			"uniqueItems",

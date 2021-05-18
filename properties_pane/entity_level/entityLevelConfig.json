@@ -135,7 +135,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "coupled",
 				"coupledBy": "namingConvention",
 				"onCoupleAction": "onCoupleCollectionBusinessName",
-    			"shouldValidate": true,
+				"shouldValidate": true,
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
@@ -144,8 +144,15 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Static",
 				"propertyKeyword": "staticVertex",
-  				"propertyTooltip": "Means that vertices with that label cannot be modified outside the transaction in which they were created.",
-				"propertyType": "checkbox"
+				"propertyTooltip": "Means that vertices with that label cannot be modified outside the transaction in which they were created.",
+				"propertyType": "checkbox",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "entityType",
+						"value": "sub-node"
+					}
+				}
 			},
 			{
 				"propertyName": "Time-To-Live",
@@ -155,29 +162,39 @@ making sure that you maintain a proper JSON format.
 				"structure": [
 					{
 						"propertyName": "Value",
-						"propertyKeyword": "vertexTTLvalue",
+						"propertyKeyword": "TTLValue",
 						"propertyType": "numeric",
 						"valueType": "number",
 						"allowNegative": false
 					},
 					{
 						"propertyName": "Temporal unit",
-						"propertyKeyword": "vertexTTLunit",
+						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
 						"options": [
 							"Days",
 							"Hours",
 							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
+							"Seconds"
 						]
 					}
 				],
 				"dependency": {
-					"key": "staticVertex",
-					"value": true
+					"type": "and",
+					"values": [
+						{
+							"key": "staticVertex",
+							"value": true
+						},
+						{
+							"type": "not",
+							"values": {
+								"key": "entityType",
+								"value": "sub-node"
+							}
+						}
+					]
 				}
 			},
 			{
@@ -188,20 +205,20 @@ making sure that you maintain a proper JSON format.
 					"key": "entityType",
 					"value": "sub-node"
 				},
-			    "valueType": "string",
-  				"propertyTooltip": "edge"
+				"valueType": "string",
+				"propertyTooltip": "edge"
 			},
 			{
 				"propertyKeyword": "parentCollection",
 				"canBeUnlinked": false,
-				"disabledOnCondition":{
+				"disabledOnCondition": {
 					"type": "not",
 					"values": {
 						"key": "entityType",
 						"value": "sub-node"
 					}
 				},
-				"dependency":{
+				"dependency": {
 					"type": "not",
 					"values": {
 						"key": "entityType",
@@ -211,55 +228,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyKeyword": "childCollection",
-				"disabledOnCondition":{}
+				"disabledOnCondition": {}
 			},
 			{
 				"propertyKeyword": "additionalProperties"
-			},
-/*
-Multiplicty and edgeTTL are edge label-specific properties, and should not appear when displaying PP for vertex labels.  And vice-versa...
-*/
-			{
-				"propertyName": "Multiplicity",
-				"propertyKeyword": "multiplicity",
-				"propertyTooltip": "Defines a constraint on all edges of this label, that is, a maximum number of edges between pairs of vertices.",
-				"propertyType": "select",
-				"options": [
-					"",
-					"MULTI",
-					"SIMPLE",
-					"MANY2ONE",
-					"ONE2MANY",
-					"ONE2ONE"
-				]
-			},
-			{
-				"propertyName": "Time-To-Live",
-				"propertyKeyword": "edgeTTL",
-				"propertyType": "block",
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "edgeTTLvalue",
-						"propertyType": "numeric",
-						"valueType": "number",
-						"allowNegative": false
-					},
-					{
-						"propertyName": "Temporal unit",
-						"propertyKeyword": "edgeTTLunit",
-						"propertyTooltip": "Select from list of options",
-						"propertyType": "select",
-						"options": [
-							"Days",
-							"Hours",
-							"Minutes",
-							"Seconds",
-							"Millis",
-							"Nanos"
-						]
-					}				]
 			},
 			{
 				"propertyName": "Comments",
@@ -271,9 +243,9 @@ Multiplicty and edgeTTL are edge label-specific properties, and should not appea
 				"valueType": "string"
 			},
 			{
-				"propertyName":"Entity type",
+				"propertyName": "Entity type",
 				"valueType": "string",
-				"propertyKeyword":"entityType",
+				"propertyKeyword": "entityType",
 				"hidden": true
 			}
 		]

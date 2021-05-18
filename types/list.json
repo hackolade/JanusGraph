@@ -8,24 +8,39 @@
 		"properties": [],
 		"primaryKey": false,
 		"additionalItems": true,
-		"minItems": "",
-		"maxItems": "",
 		"uniqueItems": false,
-		"subtype": "no-multi"
+		"subtype": "list<str>"
 	},
 	"subtypes": {
-		"no-multi": {
-			"childValueType": [
-				"string",
-				"uuid",
-				"number",
-				"boolean",
-				"date",
-				"timestamp",
-				"map",
-				"list",
-				"set"
-			]
+		"list<str>": {
+			"childValueType": "string"
+		},
+		"list<char>": {
+			"childValueType": "character"
+		},
+		"list<bool>": {
+			"childValueType": "boolean"
+		},
+		"list<number>": {
+			"childValueType": "number"
+		},
+		"list<date>": {
+			"childValueType": "date"
+		},
+		"list<uuid>": {
+			"childValueType": "uuid"
+		},
+		"list<geoshape>": {
+			"childValueType": "geoshape"
+		},
+		"list<list>": {
+			"childValueType": "list"
+		},
+		"list<set>": {
+			"childValueType": "set"
+		},
+		"list<map>": {
+			"childValueType": "map"
 		}
 	}
 }

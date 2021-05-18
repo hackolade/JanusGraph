@@ -4,7 +4,7 @@
     "versionDate": "2021-03-27",
     "author": "hackolade",
     "engines": {
-        "hackolade": "4.3.14",
+        "hackolade": "5.0.0",
         "hackoladePlugin": "1.0.0"
     },
     "contributes": {
@@ -42,6 +42,6 @@
 			}
         }
     },
-    "description": "Hackolade plugin for TinkerPop/Gremlin",
+    "description": "Hackolade plugin for JanusGraph",
     "disabled": false
 }

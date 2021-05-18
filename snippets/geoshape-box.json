@@ -1,0 +1,32 @@
+{
+	"name": "geoshape-box",
+	"parentType": "document",
+	"properties": [
+		{
+			"name": "coordinates",
+			"type": "array",
+			"properties": [
+				{
+					"type": "number",
+					"mode": "double",
+					"sample": -45.0
+				},
+				{
+					"type": "number",
+					"mode": "double",
+					"sample": 45.0
+				},
+				{
+					"type": "number",
+					"mode": "double",
+					"sample": 45.0
+				},
+				{
+					"type": "number",
+					"mode": "double",
+					"sample": -45.0
+				}
+			]
+		}
+	]
+}

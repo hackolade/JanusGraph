@@ -7,12 +7,7 @@
 	"sample":"2014-12-03",
 	"defaultValues": {
 		"primaryKey": false,
-		"default": "",
-		"enum": [],
-		"sample":"",
-		"comments":"",
-		"pattern":"",
-		"format": ""
+		"enum": []
 	},
 	"descriptor": {
 		"format": "YYYY-MM-DD"
