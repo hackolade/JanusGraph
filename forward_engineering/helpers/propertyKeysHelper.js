@@ -1,5 +1,4 @@
 const {
-    setInManagement,
     transformToValidGremlinName,
     getTTlScript,
 } = require('./common');
@@ -23,7 +22,7 @@ const generatePropertyKeys = ({ traversalSource, collections, relationships, app
         )
         .join('\n');
 
-    return setInManagement(traversalSource, propertiesScript);
+    return propertiesScript;
 };
 
 const getPropertyScript = (name, fieldData) => {

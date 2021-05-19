@@ -1,12 +1,13 @@
 const { transformToValidGremlinName, DEFAULT_INDENT, setInManagement } = require('./common');
 const { generateEdges } = require('./edgeLabelHelper');
+const { generateIndexes } = require('./indexHelper');
 const { generatePropertyKeys } = require('./propertyKeysHelper');
 const { generateVertices } = require('./vertexLabelHelper');
 
 let _ = null;
 const setDependencies = app => (_ = app.require('lodash'));
 
-const generateJanusGraphSchema = ({ collections, relationships, containerData, app, modelDefinitions }) => {
+const generateJanusGraphSchema = ({ collections, relationships, containerData, app, modelDefinitions, entities }) => {
     setDependencies(app);
 
     const containerTraversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
@@ -27,8 +28,18 @@ const generateJanusGraphSchema = ({ collections, relationships, containerData, a
 
     const verticesScript = generateVertices({ traversalSource, collections: parsedCollections, app });
     const edgesScript = generateEdges({ traversalSource, relationships: parsedRelationships, app });
+    const indexesScript = generateIndexes({
+        ...containerData[1],
+        traversalSource,
+        app,
+        entities,
+        vertices: parsedCollections,
+        edges: parsedRelationships,
+    });
 
-    return [propertyKeysScript, verticesScript, edgesScript].join('\n\n');
+    const createItemsScript = setInManagement(traversalSource, [propertyKeysScript, verticesScript, edgesScript].join('\n\n\n'))
+
+    return [createItemsScript, indexesScript].join('\n\n\n');
 };
 
 module.exports = {
