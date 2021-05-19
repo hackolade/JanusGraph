@@ -27,7 +27,7 @@ const generateJanusGraphSchema = ({ collections, relationships, containerData, a
     });
 
     const verticesScript = generateVertices({ traversalSource, collections: parsedCollections, app });
-    const edgesScript = generateEdges({ traversalSource, relationships: parsedRelationships, app });
+    const edgesScript = generateEdges({ vertices: parsedCollections, relationships: parsedRelationships, app });
     const indexesScript = generateIndexes({
         ...containerData[1],
         traversalSource,
@@ -37,7 +37,10 @@ const generateJanusGraphSchema = ({ collections, relationships, containerData, a
         edges: parsedRelationships,
     });
 
-    const createItemsScript = setInManagement(traversalSource, [propertyKeysScript, verticesScript, edgesScript].join('\n\n\n'))
+    const createItemsScript = setInManagement(
+        traversalSource,
+        [propertyKeysScript, verticesScript, edgesScript].join('\n\n\n')
+    );
 
     return [createItemsScript, indexesScript].join('\n\n\n');
 };
