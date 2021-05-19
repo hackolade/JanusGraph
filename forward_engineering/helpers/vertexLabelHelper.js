@@ -22,17 +22,12 @@ const getVertexScript = traversalSource => collection => {
     const staticScript = getStaticScript(collection);
     const properties = _.keys(collection.properties).map(transformToValidGremlinName);
 
-    const getPropertyKeysScript = properties.map(getPropertyKeyGetScript).join('\n');
     const propertyKeys = getItemPropertyKeys(vertexName, properties);
 
     const createVertexScript = `${vertexName} = mgmt.makeVertexLabel('${vertexName}')${staticScript}.make()`;
     const ttlScript = getTTlScript(vertexName, collection.vertexTTL);
 
-    const vertexScript = [createVertexScript, ttlScript, getPropertyKeysScript, propertyKeys]
-        .filter(Boolean)
-        .join('\n');
-
-    return setInManagement(traversalSource, vertexScript);
+    return [createVertexScript, ttlScript, propertyKeys].filter(Boolean).join('\n');
 };
 
 const getStaticScript = collection => (collection.staticVertex ? '.setStatic()' : '');

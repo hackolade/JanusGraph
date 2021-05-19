@@ -120,21 +120,6 @@ module.exports = {
                         metaData.vertexCentricIndexes = vertexCentricIndexes;
                     })
                     .then(() => {
-                        return getNodesData(dbName, labels, logger, {
-                            recordSamplingSettings,
-                            fieldInference,
-                            includeEmptyCollection,
-                            compositeIndexes: metaData.compositeIndexes,
-                            mixedIndexes: metaData.mixedIndexes,
-                            vertexCentricIndexes: metaData.vertexCentricIndexes,
-                            features: metaData.features,
-                            variables: metaData.variables,
-                            propertyKeys: metaData.propertyKeys,
-                        });
-                    })
-                    .then(labelPackages => {
-                        packages.labels.push(labelPackages);
-
                         return gremlinHelper
                             .getRelationshipsLabels()
                             .then(gremlinHelper.getRelationshipSchema(logger, getCount(10000, recordSamplingSettings)))
@@ -155,7 +140,28 @@ module.exports = {
                         });
                     })
                     .then(relationships => {
-                        packages.relationships.push(relationships);
+                        packages.relationships.push(relationships.map(relationship => relationship.packageData));
+
+                        const relationshipDefinitions =
+                            gremlinHelper.mergeJsonSchemas(
+                                relationships.map(relationship => relationship.relationshipDefinitions)
+                            )?.properties || {};
+
+                        return getNodesData(dbName, labels, logger, {
+                            recordSamplingSettings,
+                            fieldInference,
+                            includeEmptyCollection,
+                            compositeIndexes: metaData.compositeIndexes,
+                            mixedIndexes: metaData.mixedIndexes,
+                            vertexCentricIndexes: metaData.vertexCentricIndexes,
+                            features: metaData.features,
+                            variables: metaData.variables,
+                            propertyKeys: metaData.propertyKeys,
+                            relationshipDefinitions,
+                        });
+                    })
+                    .then(labelPackages => {
+                        packages.labels.push(labelPackages);
                         next(null);
                     })
                     .catch(error => {
@@ -258,6 +264,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                             features: data.features,
                             variables: data.variables,
                             propertyKeys: data.propertyKeys,
+                            relationshipDefinitions: data.relationshipDefinitions,
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -333,7 +340,7 @@ const getRelationshipData = ({ schema, dbName, recordSamplingSettings, fieldInfe
                             packageData.documentTemplate = getTemplate(documents, template);
                         }
 
-                        nextChain(null, packageData);
+                        nextChain(null, { packageData, relationshipDefinitions: schema });
                     })
                     .catch(nextChain);
             },
@@ -363,6 +370,7 @@ const getLabelPackage = ({
     features,
     variables,
     propertyKeys,
+    relationshipDefinitions,
 }) => {
     let packageData = {
         dbName,
@@ -385,6 +393,7 @@ const getLabelPackage = ({
         modelDefinitions: {
             properties: {
                 ...propertyKeys,
+                ...relationshipDefinitions,
                 ...clearMetaProperties(schema.properties),
             },
         },

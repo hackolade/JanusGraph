@@ -216,7 +216,7 @@ making sure that you maintain a proper JSON format.
 					},
 					{
 						"propertyName": "Index only label",
-						"propertyKeyword": "IndexOnly",
+						"propertyKeyword": "indexOnly",
 						"propertyTooltip": "To restrict the index to a particular vertex or edge label using the indexOnly method of the index builder",
 						"propertyType": "checkbox"
 					},
@@ -309,10 +309,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "indexKey",
 						"propertyType": "fieldList",
 						"template": "orderedList",
-						"attributeList": [
-							"ascending",
-							"descending"
-						],
 						"templateOptions": {
 							"entityName": false,
 							"addType": false
@@ -330,6 +326,16 @@ making sure that you maintain a proper JSON format.
 							"BOTH",
 							"IN",
 							"OUT"
+						]
+					},
+					{
+						"propertyName": "Order",
+						"propertyKeyword": "order",
+						"propertyTooltip": "Choose from the list of available options",
+						"propertyType": "select",
+						"options": [
+							"ascending",
+							"descending"
 						]
 					},
 					{
