@@ -6,10 +6,21 @@ const setDependencies = app => (_ = app.require('lodash'));
 const getRollback = traversalSource => `${traversalSource}.tx().rollback()`;
 const getGetEdgeScript = edgeName => `${edgeName} = mgmt.getEdgeLabel('${edgeName}')`;
 const getGetVertexScript = vertexName => `${vertexName} = mgmt.getVertexLabel('${vertexName}')`;
-const getAwaitIndexStatus = (traversalSource, indexName, itemName) =>
-    `ManagementSystem.awaitRelationIndexStatus(${traversalSource}.getGraph(), '${indexName}'${
-        itemName ? `, '${itemName}'` : ''
-    }).call()`;
+const getAwaitRelationIndexStatus = (traversalSource, indexName, itemName) =>
+    `ManagementSystem.awaitRelationIndexStatus(${traversalSource}.getGraph(), '${indexName}', '${itemName}').call()`;
+const getAwaitGraphIndexStatus = (traversalSource, indexName) =>
+    `ManagementSystem.awaitGraphIndexStatus(${traversalSource}.getGraph(), '${indexName}').call()`;
+
+const getReindexGraphIndex = (traversalSource, indexName) => `
+mgmt = ${traversalSource}.getGraph().openManagement()
+mgmt.updateIndex(mgmt.getGraphIndex("${indexName}"), SchemaAction.REINDEX).get()
+mgmt.commit()`;
+
+const getReindexRelationIndex = (traversalSource, indexName, edgeName) => `
+mgmt = ${traversalSource}.getGraph().openManagement()
+${getGetEdgeScript(edgeName)}
+mgmt.updateIndex(mgmt.getRelationIndex(${edgeName}, '${indexName}'), SchemaAction.REINDEX).get()
+mgmt.commit()`;
 
 const generateIndexes = ({
     compositeIndexes = [],
@@ -49,7 +60,7 @@ const generateCompositeIndexesScript = ({ traversalSource, compositeIndexes, edg
             const properties = compositeIndex.indexKey.map(indexKey => transformToValidGremlinName(indexKey.name));
             const getPropertyKeysScript = properties.map(getPropertyKeyGetScript).join('\n');
 
-            const addPropertiesScript = properties.map(property => `.addKey(${property})`);
+            const addPropertiesScript = properties.map(property => `.addKey(${property})`).join('');
             const uniqueScript = compositeIndex.unique ? '.unique()' : '';
             const indexOnlyData = getIndexOnlyData({ compositeIndex, vertices, edges, firstIndexKey, isVertexIndex });
             const buildIndexScript = `mgmt.buildIndex('${compositeIndex.name}', ${
@@ -63,7 +74,8 @@ const generateCompositeIndexesScript = ({ traversalSource, compositeIndexes, edg
             return [
                 getRollback(traversalSource),
                 setInManagement(traversalSource, createIndexScript),
-                getAwaitIndexStatus(traversalSource, compositeIndex.name),
+                getAwaitGraphIndexStatus(traversalSource, compositeIndex.name),
+                getReindexGraphIndex(traversalSource, compositeIndex.name),
             ].join('\n');
         })
         .filter(Boolean)
@@ -89,19 +101,25 @@ const generateMixedIndexesScript = (traversalSource, mixedIndexes, entities) => 
                 .map(getPropertyKeyGetScript)
                 .join('\n');
 
-            const addPropertiesScript = properties.map(
-                property => `.addKey(${property.name}, Mapping.${property.type}.asParameter())`
-            );
+            const addPropertiesScript = properties
+                .map(
+                    property =>
+                        `.addKey(${property.name}${
+                            property.type === 'TEXT' ? '' : `, Mapping.${property.type}.asParameter()`
+                        })`
+                )
+                .join('');
             const buildIndexScript = `mgmt.buildIndex('${mixedIndex.name}', ${
                 isVertexIndex ? 'Vertex' : 'Edge'
-            }.class)${addPropertiesScript}.buildMixedIndex('${mixedIndexes.indexingBackend || 'search'}')`;
+            }.class)${addPropertiesScript}.buildMixedIndex("${mixedIndexes.indexingBackend || 'search'}")`;
 
             const createIndexScript = [getPropertyKeysScript, buildIndexScript].join('\n');
 
             return [
                 getRollback(traversalSource),
                 setInManagement(traversalSource, createIndexScript),
-                getAwaitIndexStatus(traversalSource, mixedIndex.name),
+                getAwaitGraphIndexStatus(traversalSource, mixedIndex.name),
+                getReindexGraphIndex(traversalSource, mixedIndex.name),
             ].join('\n');
         })
         .filter(Boolean)
@@ -126,7 +144,7 @@ const generateVertexCentricIndexes = (traversalSource, vertexCentricIndexes, edg
             const properties = vertexCentricIndex.indexKey.map(indexKey => transformToValidGremlinName(indexKey.name));
             const getPropertyKeysScript = properties.map(getPropertyKeyGetScript).join('\n');
             const directionScript = `Direction.${vertexCentricIndex.direction || 'BOTH'}`;
-            const orderScript = vertexCentricIndex.order === 'DESC' ? 'Order.DESC' : 'Order.ASC';
+            const orderScript = vertexCentricIndex.order === 'descending' ? 'Order.desc' : 'Order.asc';
             const getEdgeScript = getGetEdgeScript(edgeName);
             const validEdgeName = transformToValidGremlinName(edgeName);
 
@@ -139,7 +157,8 @@ const generateVertexCentricIndexes = (traversalSource, vertexCentricIndexes, edg
             return [
                 getRollback(traversalSource),
                 setInManagement(traversalSource, createIndexScript),
-                getAwaitIndexStatus(traversalSource, vertexCentricIndex.name, edgeName),
+                getAwaitRelationIndexStatus(traversalSource, vertexCentricIndex.name, edgeName),
+                getReindexRelationIndex(traversalSource, vertexCentricIndex.name, edgeName),
             ].join('\n');
         })
         .filter(Boolean)

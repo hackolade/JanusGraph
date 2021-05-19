@@ -334,8 +334,8 @@ making sure that you maintain a proper JSON format.
 						"propertyTooltip": "Choose from the list of available options",
 						"propertyType": "select",
 						"options": [
-							"ASC",
-							"DESC"
+							"ascending",
+							"descending"
 						]
 					},
 					{
