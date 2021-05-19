@@ -922,4 +922,5 @@ module.exports = {
     getPropertyKeys,
     getVertexLabelData,
     getGraphSchema,
+    mergeJsonSchemas,
 };
