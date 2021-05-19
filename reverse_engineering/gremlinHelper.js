@@ -357,7 +357,8 @@ const getIndexes = () => {
 
         const vertexCentricIndexes = vertexCentricIndexesData.map(index => ({
             name: index[0],
-            indexKey: index[6].map(keyName => ({ name: keyName, type: getKeyType(index[4]), entity: index[1] })),
+            indexKey: index[6].map(keyName => ({ name: keyName, entity: index[1] })),
+            order: getKeyType(index[4]),
             direction: index[2],
         }));
 
