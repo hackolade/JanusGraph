@@ -2,22 +2,20 @@ const {
     transformToValidGremlinName,
     getTTlScript,
     getItemPropertyKeys,
-    getPropertyKeyGetScript,
-    setInManagement,
 } = require('./common');
 
 let _ = null;
 const setDependencies = app => (_ = app.require('lodash'));
 
-const generateVertices = ({ traversalSource, collections, app }) => {
+const generateVertices = ({ collections, app }) => {
     setDependencies(app);
 
-    const vertices = collections.map(getVertexScript(traversalSource)).join('\n\n');
+    const vertices = collections.map(getVertexScript).join('\n\n');
 
     return vertices;
 };
 
-const getVertexScript = traversalSource => collection => {
+const getVertexScript = collection => {
     const vertexName = getVertexName(collection);
     const staticScript = getStaticScript(collection);
     const properties = _.keys(collection.properties).map(transformToValidGremlinName);
@@ -25,7 +23,7 @@ const getVertexScript = traversalSource => collection => {
     const propertyKeys = getItemPropertyKeys(vertexName, properties);
 
     const createVertexScript = `${vertexName} = mgmt.makeVertexLabel('${vertexName}')${staticScript}.make()`;
-    const ttlScript = getTTlScript(vertexName, collection.vertexTTL);
+    const ttlScript = collection.staticVertex ? getTTlScript(vertexName, collection.vertexTTL) : '';
 
     return [createVertexScript, ttlScript, propertyKeys].filter(Boolean).join('\n');
 };

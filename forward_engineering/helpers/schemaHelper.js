@@ -29,7 +29,7 @@ const generateJanusGraphSchema = ({ collections, relationships, containerData, a
     });
 
     const graphCreationScript = getGraphCreationScript(graphName, traversalSource, graphConfigurations);
-    const verticesScript = generateVertices({ traversalSource, collections: parsedCollections, app });
+    const verticesScript = generateVertices({ collections: parsedCollections, app });
     const edgesScript = generateEdges({ vertices: parsedCollections, relationships: parsedRelationships, app });
     const indexesScript = generateIndexes({
         ...containerData[1],
