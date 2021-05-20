@@ -95,18 +95,12 @@ module.exports = {
 
                 gremlinHelper
                     .getGraphSchema()
-                    .then(schema => logger.log('info', schema, 'Graph Schema'))
-                    .then(() => gremlinHelper.getFeatures())
-                    .then(features => {
-                        metaData.features = features;
-                    })
-                    .then(() => gremlinHelper.getVariables())
-                    .then(variables => {
-                        metaData.variables = variables;
-                    })
-                    .then(() => gremlinHelper.getPropertyKeys())
-                    .then(propertyKeys => {
-                        metaData.propertyKeys = propertyKeys;
+                    .then(async schema => {
+                        logger.log('info', schema, 'Graph Schema');
+
+                        metaData.features = await gremlinHelper.getFeatures();
+                        metaData.variables = await gremlinHelper.getVariables();
+                        metaData.propertyKeys = await gremlinHelper.getPropertyKeys();
                     })
                     .then(() => gremlinHelper.getIndexes())
                     .then(({ compositeIndexes, mixedIndexes, vertexCentricIndexes }) => {

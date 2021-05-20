@@ -165,12 +165,32 @@ making sure that you maintain a proper JSON format.
            			},
            			{
 						"propertyName": "Value",
-               			"propertyKeyword": "GraphVariableValue",
+               			"propertyKeyword": "graphVariableValue",
                			"propertyTooltip": "",
                			"propertyType": "text"
            			}
            		]
-       		},
+			},
+			{
+				"propertyName": "Graph configurations",
+				"propertyType": "group",
+				"propertyKeyword": "graphConfigurations",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "graphConfigurationKey",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "graphConfigurationValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
 			{
 				"propertyName": "Description",
 				"propertyKeyword": "description",

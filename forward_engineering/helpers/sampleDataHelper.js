@@ -17,15 +17,13 @@ const generateGremlinDataSamples = ({ collections, relationships, jsonData, cont
     const verticesScript = generateVertices(parsedCollections, jsonData, graphName);
     const edgesScript = generateEdges(parsedCollections, parsedRelationships, jsonData, graphName);
 
-    return [variablesScript, verticesScript, edgesScript, `${graphName}.tx().commit();`]
-        .filter(Boolean)
-        .join('\n\n\n');
+    return [variablesScript, verticesScript, edgesScript, `${graphName}.tx().commit();`].filter(Boolean).join('\n\n\n');
 };
 
 const generateVariables = variables => {
     return variables.reduce((script, variable) => {
         const key = variable.graphVariableKey;
-        const value = variable.GraphVariableValue || '';
+        const value = variable.graphVariableValue || '';
         if (!key) {
             return script;
         }

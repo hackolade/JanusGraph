@@ -393,7 +393,7 @@ const getVariables = () =>
 
             return {
                 graphVariableKey: variable,
-                GraphVariableValue: variableValue,
+                graphVariableValue: variableValue,
             };
         });
 
