@@ -231,7 +231,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                         });
 
                         return {
-                            documents: schemaData.documentTemplate,
+                            documents: schemaData.documents,
                             schema: schemaData.schema,
                             template: schemaData.template,
                             entityLevel: entityLevelData.entityLevel,
