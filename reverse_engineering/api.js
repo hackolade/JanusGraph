@@ -131,6 +131,7 @@ module.exports = {
                             recordSamplingSettings,
                             fieldInference,
                             propertyKeys: metaData.propertyKeys,
+                            asModelDefinitions: data.asModelDefinitions,
                         });
                     })
                     .then(relationships => {
@@ -151,6 +152,7 @@ module.exports = {
                             features: metaData.features,
                             variables: metaData.variables,
                             propertyKeys: metaData.propertyKeys,
+                            asModelDefinitions: data.asModelDefinitions,
                             relationshipDefinitions,
                         });
                     })
@@ -259,6 +261,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                             variables: data.variables,
                             propertyKeys: data.propertyKeys,
                             relationshipDefinitions: data.relationshipDefinitions,
+                            asModelDefinitions: data.asModelDefinitions,
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -294,7 +297,14 @@ const sortPackagesByLabels = (labels, packages) => {
     });
 };
 
-const getRelationshipData = ({ schema, dbName, recordSamplingSettings, fieldInference, propertyKeys }) => {
+const getRelationshipData = ({
+    schema,
+    dbName,
+    recordSamplingSettings,
+    fieldInference,
+    propertyKeys,
+    asModelDefinitions,
+}) => {
     return new Promise((resolve, reject) => {
         async.map(
             schema,
@@ -321,7 +331,7 @@ const getRelationshipData = ({ schema, dbName, recordSamplingSettings, fieldInfe
                             level: 'entity',
                             documents,
                             validation: {
-                                jsonSchema: convertSchemaToRefs(schema),
+                                jsonSchema: asModelDefinitions ? convertSchemaToRefs(schema) : schema,
                             },
                             relationshipInfo: {
                                 biDirectional: chain.biDirectional,
@@ -365,6 +375,7 @@ const getLabelPackage = ({
     variables,
     propertyKeys,
     relationshipDefinitions,
+    asModelDefinitions,
 }) => {
     let packageData = {
         dbName,
@@ -374,7 +385,7 @@ const getLabelPackage = ({
         emptyBucket: false,
         entityLevel,
         validation: {
-            jsonSchema: convertSchemaToRefs(schema),
+            jsonSchema: asModelDefinitions ? convertSchemaToRefs(schema) : schema,
         },
         bucketInfo: {
             compositeIndexes,
@@ -384,13 +395,15 @@ const getLabelPackage = ({
             graphVariables: variables,
             traversalSource: dbName,
         },
-        modelDefinitions: {
-            properties: {
-                ...propertyKeys,
-                ...relationshipDefinitions,
-                ...clearMetaProperties(schema.properties),
+        ...(asModelDefinitions && {
+            modelDefinitions: {
+                properties: {
+                    ...propertyKeys,
+                    ...relationshipDefinitions,
+                    ...clearMetaProperties(schema.properties),
+                },
             },
-        },
+        }),
     };
 
     if (fieldInference.active === 'field') {
