@@ -9,7 +9,7 @@ module.exports = {
     connect: function (connectionInfo, logger, cb) {
         logger.clear();
         logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-        gremlinHelper.connect(connectionInfo).then(cb, cb);
+        gremlinHelper.connect(connectionInfo, logger).then(cb, cb);
     },
 
     disconnect: function (connectionInfo, cb) {
@@ -47,29 +47,27 @@ module.exports = {
     },
 
     getDbCollectionsNames: function (connectionInfo, logger, cb) {
-        let result = {
-            dbName: '',
-            dbCollections: '',
-        };
         gremlinHelper
-            .connect(connectionInfo)
-            .then(
-                () => gremlinHelper.getLabels(),
-                error => cb({ message: 'Connection error', stack: error.stack })
-            )
-            .then(labels => {
-                result.dbCollections = labels;
-            })
+            .connect(connectionInfo, logger)
             .then(() => {
-                return gremlinHelper.getDatabaseName();
-            })
-            .then(dbName => {
-                result.dbName = dbName;
-
-                cb(null, [result]);
+                return gremlinHelper
+                    .getLabels()
+                    .then(dbCollections => {
+                        cb(null, [
+                            {
+                                dbCollections,
+                                dbName: connectionInfo.graphName,
+                            },
+                        ]);
+                    })
+                    .catch(error => {
+                        logger.log('error', prepareError(error));
+                        cb(error || 'error');
+                    });
             })
             .catch(error => {
-                cb(error || 'error');
+                logger.log('error', prepareError(error));
+                cb({ message: 'Connection error', stack: error.stack });
             });
     },
 
@@ -393,7 +391,7 @@ const getLabelPackage = ({
             vertexCentricIndexes,
             features,
             graphVariables: variables,
-            traversalSource: dbName,
+            traversalSource: 'g',
         },
         ...(asModelDefinitions && {
             modelDefinitions: {
