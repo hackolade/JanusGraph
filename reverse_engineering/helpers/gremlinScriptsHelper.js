@@ -118,7 +118,7 @@ const getDataQuery = (traversalSource, element, label, limit) =>
     `${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`;
 
 const getTemplateData = (traversalSource, element, label, limit) =>
-    `${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).properties().order().by().label().dedup().toList()`;
+    `${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).properties().key().order().dedup().toList()`
 
 const getEdgeLabelsScript = traversalSource =>
     `${traversalSource}.
