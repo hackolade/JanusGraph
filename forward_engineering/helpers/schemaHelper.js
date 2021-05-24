@@ -7,9 +7,18 @@ const { generateVertices } = require('./vertexLabelHelper');
 let _ = null;
 const setDependencies = app => (_ = app.require('lodash'));
 
-const generateJanusGraphSchema = ({ collections, relationships, containerData, app, modelDefinitions, entities }) => {
+const generateJanusGraphSchema = ({
+    collections,
+    relationships,
+    containerData,
+    app,
+    modelDefinitions,
+    entities,
+    options,
+}) => {
     setDependencies(app);
 
+    const useConfiguredGraphFactory = options?.additionalOptions[0]?.value;
     const graphName = containerData[0].code || containerData[0].name;
     const containerTraversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
     const graphConfigurations = _.get(containerData, [0, 'graphConfigurations'], []);
@@ -28,7 +37,9 @@ const generateJanusGraphSchema = ({ collections, relationships, containerData, a
         app,
     });
 
-    const graphCreationScript = getGraphCreationScript(graphName, traversalSource, graphConfigurations);
+    const graphCreationScript = useConfiguredGraphFactory
+        ? getGraphCreationScriptWithConfiguredGraphFactory(graphName, traversalSource, graphConfigurations)
+        : getGraphCreationScriptWithJanusGraphFactory(graphName, traversalSource, graphConfigurations);
     const verticesScript = generateVertices({ collections: parsedCollections, app });
     const edgesScript = generateEdges({ vertices: parsedCollections, relationships: parsedRelationships, app });
     const indexesScript = generateIndexes({
@@ -48,19 +59,42 @@ const generateJanusGraphSchema = ({ collections, relationships, containerData, a
     return [graphCreationScript, createItemsScript, indexesScript].join('\n\n\n').trim();
 };
 
-const getGraphCreationScript = (graphName, traversalSource, graphConfigurations) => {
-    if (_.isEmpty(graphConfigurations)) {
-        return `${graphName} = ConfiguredGraphFactory.create("${graphName}");\n${traversalSource} = ${graphName}.traversal();`;
-    }
+const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
+    getGraphCreationScript({
+        graphConfigurations,
+        mapConfiguration: configuration => `conf.put("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
+        getConfigScript: configurations => `conf = new HashMap();\n${configurations}`,
+        getCreateConfigurationScript: configurations =>
+            `${configurations}\nConfiguredGraphFactory.createConfiguration(new MapConfiguration(conf));`,
+        getCreateGraphScript: configurationScript =>
+            `${configurationScript}\n${traversalSource} = ConfiguredGraphFactory.create("${graphName}").traversal();`,
+    });
 
-    const configurations = graphConfigurations
-        .map(config => `map.put("${config.graphConfigurationKey}", "${config.graphConfigurationValue}");`)
-        .join('\n');
-    const configurationMapScript = `map = new HashMap();\n${configurations}`;
+const getGraphCreationScriptWithJanusGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
+    getGraphCreationScript({
+        graphConfigurations,
+        mapConfiguration: configuration => `conf.setProperty("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
+        getConfigScript: configurations => `conf = new BaseConfiguration();\n${configurations}`,
+        getCreateConfigurationScript: configurations => `${configurations}`,
+        getCreateGraphScript: configurationScript =>
+            `${configurationScript}\n${traversalSource} = JanusGraphFactory.open(${
+                _.isEmpty(configurationScript) ? `"${graphName}"` : 'conf'
+            }).traversal();`,
+    });
 
-    const configurationScript = `${configurationMapScript}\nConfiguredGraphFactory.createConfiguration(new MapConfiguration(map));`;
+const getGraphCreationScript = ({
+    graphConfigurations = [],
+    mapConfiguration,
+    getConfigScript,
+    getCreateConfigurationScript,
+    getCreateGraphScript,
+}) => {
+    const configurations = graphConfigurations.map(mapConfiguration).join('\n');
+    const configurationScript = getConfigScript(configurations);
 
-    return `${configurationScript}\n${graphName} = ConfiguredGraphFactory.create("${graphName}");\n${traversalSource} = ${graphName}.traversal();`;
+    const createConfigurationScript = getCreateConfigurationScript(configurationScript);
+
+    return getCreateGraphScript(_.isEmpty(graphConfigurations) ? '' : createConfigurationScript);
 };
 
 module.exports = {
