@@ -45,7 +45,11 @@ module.exports = {
             .connect(connectionInfo, app)
             .then(() => gremlinHelper.applyToInstance(script))
             .then(() => callback())
-            .catch(error => callback(prepareError(error)));
+            .catch(error => {
+                logger.log('error', prepareError(error));
+                
+                callback(prepareError(error))
+            });
     },
 
     testConnection(connectionInfo, logger, callback, app) {
