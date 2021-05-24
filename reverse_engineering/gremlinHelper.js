@@ -369,7 +369,7 @@ const convertRootGraphSON =
             { keys: [], values: [] }
         );
 
-        const propertiesDocument = _.concat(keys, propertyNames).reduce(
+        const propertiesDocument = _.union(keys, propertyNames).reduce(
             (properties, key, index) => ({
                 ...properties,
                 [key]: mergePropertyKey(values[index] || {}, propertyKeys[key]),
