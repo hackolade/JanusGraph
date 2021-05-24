@@ -140,7 +140,7 @@ const testConnection = () => {
         return Promise.reject('Connection error');
     }
 
-    return client.submit(`${state.traversalSource}.V().next()`);
+    return client.submit(`${state.traversalSource}.V().count()`);
 };
 
 const close = () => {
