@@ -53,16 +53,17 @@ const generateJanusGraphSchema = ({
 
     const createItemsScript = setInManagement(
         traversalSource,
-        [propertyKeysScript, verticesScript, edgesScript].join('\n\n\n')
+        [propertyKeysScript, verticesScript, edgesScript, indexesScript].join('\n\n\n')
     );
 
-    return [graphCreationScript, createItemsScript, indexesScript].join('\n\n\n').trim();
+    return [graphCreationScript, getRollback(traversalSource), createItemsScript].join('\n\n\n').trim();
 };
 
 const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
     getGraphCreationScript({
         graphConfigurations,
-        mapConfiguration: configuration => `conf.put("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
+        mapConfiguration: configuration =>
+            `conf.put("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
         getConfigScript: configurations => `conf = new HashMap();\n${configurations}`,
         getCreateConfigurationScript: configurations =>
             `${configurations}\nConfiguredGraphFactory.createConfiguration(new MapConfiguration(conf));`,
@@ -73,7 +74,8 @@ const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSo
 const getGraphCreationScriptWithJanusGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
     getGraphCreationScript({
         graphConfigurations,
-        mapConfiguration: configuration => `conf.setProperty("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
+        mapConfiguration: configuration =>
+            `conf.setProperty("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
         getConfigScript: configurations => `conf = new BaseConfiguration();\n${configurations}`,
         getCreateConfigurationScript: configurations => `${configurations}`,
         getCreateGraphScript: configurationScript =>
@@ -96,6 +98,8 @@ const getGraphCreationScript = ({
 
     return getCreateGraphScript(_.isEmpty(graphConfigurations) ? '' : createConfigurationScript);
 };
+
+const getRollback = traversalSource => `${traversalSource}.tx().rollback()`;
 
 module.exports = {
     generateJanusGraphSchema,
