@@ -272,7 +272,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                 if (err) {
                     reject(err);
                 } else {
-                    const sortedPackages = sortPackagesByLabels(labels, packages);
+                    const sortedPackages = sortPackagesByLabels(packages);
                     resolve(sortedPackages);
                 }
             }
@@ -280,20 +280,7 @@ const getNodesData = (dbName, labels, logger, data) => {
     });
 };
 
-const sortPackagesByLabels = (labels, packages) => {
-    return [...packages].sort((a, b) => {
-        const indexA = _.indexOf(labels, a['collectionName']);
-        const indexB = _.indexOf(labels, b['collectionName']);
-        if (_.isUndefined(indexA)) {
-            return 1;
-        }
-        if (_.isUndefined(indexB)) {
-            return -1;
-        }
-
-        return indexA - indexB;
-    });
-};
+const sortPackagesByLabels = packages => _.orderBy(packages, item => item.collectionName);
 
 const getRelationshipData = ({
     schema,
