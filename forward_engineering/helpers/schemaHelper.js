@@ -61,6 +61,7 @@ const generateJanusGraphSchema = ({
 
 const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
     getGraphCreationScript({
+        graphName,
         graphConfigurations,
         mapConfiguration: configuration =>
             `conf.put("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
@@ -75,6 +76,7 @@ const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSo
 
 const getGraphCreationScriptWithJanusGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
     getGraphCreationScript({
+        graphName,
         graphConfigurations,
         mapConfiguration: configuration =>
             `conf.setProperty("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
@@ -87,13 +89,21 @@ const getGraphCreationScriptWithJanusGraphFactory = (graphName, traversalSource,
     });
 
 const getGraphCreationScript = ({
+    graphName,
     graphConfigurations = [],
     mapConfiguration,
     getConfigScript,
     getCreateConfigurationScript,
     getCreateGraphScript,
 }) => {
-    const configurations = graphConfigurations.map(mapConfiguration).join('\n');
+    const hasGraphNameConfiguration = graphConfigurations.find(
+        item => item.graphConfigurationKey === 'graph.graphname'
+    );
+    const graphNameConfiguration = !hasGraphNameConfiguration
+        ? [{ graphConfigurationKey: 'graph.graphname', graphConfigurationValue: graphName }]
+        : [];
+
+    const configurations = graphConfigurations.concat(graphNameConfiguration).map(mapConfiguration).join('\n');
     const configurationScript = getConfigScript(configurations);
 
     const createConfigurationScript = getCreateConfigurationScript(configurationScript);
