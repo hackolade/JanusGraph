@@ -155,10 +155,10 @@ const close = () => {
     }
 };
 
-const getLabels = () => {
+const getLabels = traversalSource => {
     return Promise.all([
-        client.submit(getVertexLabelsFromSchema(state.traversalSource)),
-        client.submit(getVertexLabelsFromData(state.traversalSource)),
+        client.submit(getVertexLabelsFromSchema(traversalSource || state.traversalSource)),
+        client.submit(getVertexLabelsFromData(traversalSource || state.traversalSource)),
     ]).then(([labels1, labels2]) => _.concat(labels1.toArray(), labels2.toArray()));
 };
 
@@ -758,6 +758,16 @@ const getConfigurations = logger => {
         });
 };
 
+const getGraphNames = () => {
+    return client
+        .submit('org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraphNames()')
+        .then(graphNames => graphNames.toArray().filter(graphName => graphName !== 'ConfigurationManagementGraph'));
+};
+
+const setCurrentTraversalSource = async (graphName, logger) => {
+    state.traversalSource = await getGraphTraversalByGraphName(graphName, logger)
+}
+
 module.exports = {
     connect,
     testConnection,
@@ -778,4 +788,7 @@ module.exports = {
     getGraphSchema,
     mergeJsonSchemas,
     getConfigurations,
+    getGraphNames,
+    getGraphTraversalByGraphName,
+    setCurrentTraversalSource,
 };

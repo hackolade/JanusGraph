@@ -49,21 +49,38 @@ module.exports = {
     getDbCollectionsNames: function (connectionInfo, logger, cb) {
         gremlinHelper
             .connect(connectionInfo, logger)
-            .then(() => {
-                return gremlinHelper
-                    .getLabels()
-                    .then(dbCollections => {
-                        cb(null, [
-                            {
-                                dbCollections,
-                                dbName: connectionInfo.graphName,
-                            },
-                        ]);
-                    })
-                    .catch(error => {
-                        logger.log('error', prepareError(error));
-                        cb(error || 'error');
-                    });
+            .then(async () => {
+                let graphNames = [];
+
+                if (connectionInfo.graphName) {
+                    graphNames = [connectionInfo.graphName];
+                } else {
+                    try {
+                        graphNames = await gremlinHelper.getGraphNames();
+                    } catch (error) {
+                        const prepareGraphNamesError = error => ({
+                            message: `${error.message}\nPossible reason: JanusGraphManager is not configured. Please specify graph name in connection settings`,
+                            stack: error.stack,
+                        });
+
+                        logger.log('error', prepareGraphNamesError(error), 'Retrieving graph names error.');
+                        cb(prepareGraphNamesError(error));
+                    }
+                }
+
+                try {
+                    const data = await Promise.all(
+                        graphNames.map(async graphName => {
+                            return gremlinHelper
+                                .getLabels(await gremlinHelper.getGraphTraversalByGraphName(graphName, logger))
+                                .then(dbCollections => ({ dbCollections, dbName: graphName }));
+                        })
+                    );
+                    cb(null, data);
+                } catch (error) {
+                    logger.log('error', prepareError(error), 'Retrieving labels data error');
+                    cb(prepareError(error));
+                }
             })
             .catch(error => {
                 logger.log('error', prepareError(error));
@@ -85,14 +102,16 @@ module.exports = {
             relationships: [],
         };
 
-        async.map(
+        async.mapLimit(
             dataBaseNames,
+            1,
             (dbName, next) => {
                 let labels = collections[dbName];
                 let metaData = {};
 
                 gremlinHelper
-                    .getGraphSchema()
+                    .setCurrentTraversalSource(dbName, logger)
+                    .then(() => gremlinHelper.getGraphSchema())
                     .then(async schema => {
                         logger.log('info', schema, 'Graph Schema');
 
