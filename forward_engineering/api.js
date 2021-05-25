@@ -14,12 +14,11 @@ module.exports = {
             const withSamples = data.options.origin !== 'ui';
 
             const schemaScript = generateJanusGraphSchema({ ...data, app });
+            const sampleScript = generateGremlinDataSamples({ ...data, app });
 
             if (withSamples || !insertSamplesOption.value) {
-                return cb(null, schemaScript);
+                return cb(null, `${schemaScript}\n\n${sampleScript}`);
             }
-
-            const sampleScript = generateGremlinDataSamples({ ...data, app });
 
             cb(null, [
                 { title: 'JanusGraph schema', script: schemaScript },
@@ -47,8 +46,8 @@ module.exports = {
             .then(() => callback())
             .catch(error => {
                 logger.log('error', prepareError(error));
-                
-                callback(prepareError(error))
+
+                callback(prepareError(error));
             });
     },
 

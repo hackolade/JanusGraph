@@ -19,7 +19,7 @@ const generateJanusGraphSchema = ({
     setDependencies(app);
 
     const useConfiguredGraphFactory = options?.additionalOptions[0]?.value;
-    const graphName = containerData[0].code || containerData[0].name;
+    const graphName = containerData[0]?.code || containerData[0]?.name || 'graph';
     const containerTraversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
     const graphConfigurations = _.get(containerData, [0, 'graphConfigurations'], []);
     const traversalSource = transformToValidGremlinName(containerTraversalSource);
@@ -53,10 +53,10 @@ const generateJanusGraphSchema = ({
 
     const createItemsScript = setInManagement(
         traversalSource,
-        [propertyKeysScript, verticesScript, edgesScript, indexesScript].join('\n\n\n')
+        [propertyKeysScript, verticesScript, edgesScript, indexesScript].filter(Boolean).join('\n\n\n')
     );
 
-    return [graphCreationScript, getRollback(traversalSource), createItemsScript].join('\n\n\n').trim();
+    return [graphCreationScript, getRollback(traversalSource), createItemsScript].filter(Boolean).join('\n\n\n').trim();
 };
 
 const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
