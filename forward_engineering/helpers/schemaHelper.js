@@ -68,7 +68,9 @@ const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSo
         getCreateConfigurationScript: configurations =>
             `${configurations}\nConfiguredGraphFactory.createConfiguration(new MapConfiguration(conf));`,
         getCreateGraphScript: configurationScript =>
-            `${configurationScript}\n${traversalSource} = ConfiguredGraphFactory.create("${graphName}").traversal();`,
+            `${configurationScript}\n${traversalSource} = ConfiguredGraphFactory.${
+                _.isEmpty(configurationScript) ? 'create' : 'open'
+            }("${graphName}").traversal();`,
     });
 
 const getGraphCreationScriptWithJanusGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
