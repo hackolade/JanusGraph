@@ -175,6 +175,10 @@ const checkGraphTraversalSourceScript = graphName =>
 const getGraphTraversalSourceScript = graphName =>
     `org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraph('${graphName}').traversal()`;
 
+const getGraphConfigurations = traversalSource => 
+    `cnfg = ${traversalSource}.getGraph().configuration();
+    cnfg.getKeys().collect{item -> [item, cnfg.getProperty(item)]}`
+
 module.exports = {
     getVertexLabelsFromSchema,
     getVertexLabelsFromData,
@@ -199,4 +203,5 @@ module.exports = {
     getMetaPropertiesDataQuery,
     checkGraphTraversalSourceScript,
     getGraphTraversalSourceScript,
+    getGraphConfigurations,
 };

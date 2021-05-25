@@ -37,6 +37,7 @@ const {
     getMetaPropertiesDataQuery,
     checkGraphTraversalSourceScript,
     getGraphTraversalSourceScript,
+    getGraphConfigurations,
 } = require('./helpers/gremlinScriptsHelper');
 
 let client;
@@ -744,6 +745,19 @@ const getGraphTraversalByGraphName = (graphName, logger) => {
         });
 };
 
+const getConfigurations = logger => {
+    return client
+        .submit(getGraphConfigurations(state.traversalSource))
+        .then(configs =>
+            configs.toArray().map(config => ({ graphConfigurationKey: config[0], graphConfigurationValue: config[1] }))
+        )
+        .catch(error => {
+            logger.log('error', prepareError(error), 'Get graph config error');
+
+            return [];
+        });
+};
+
 module.exports = {
     connect,
     testConnection,
@@ -763,4 +777,5 @@ module.exports = {
     getVertexLabelData,
     getGraphSchema,
     mergeJsonSchemas,
+    getConfigurations,
 };

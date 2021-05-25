@@ -99,6 +99,7 @@ module.exports = {
                         metaData.features = await gremlinHelper.getFeatures();
                         metaData.variables = await gremlinHelper.getVariables();
                         metaData.propertyKeys = await gremlinHelper.getPropertyKeys();
+                        metaData.graphConfigurations = await gremlinHelper.getConfigurations(logger);
                     })
                     .then(() => gremlinHelper.getIndexes())
                     .then(({ compositeIndexes, mixedIndexes, vertexCentricIndexes }) => {
@@ -151,6 +152,7 @@ module.exports = {
                             variables: metaData.variables,
                             propertyKeys: metaData.propertyKeys,
                             asModelDefinitions: data.asModelDefinitions,
+                            graphConfigurations: metaData.graphConfigurations,
                             relationshipDefinitions,
                         });
                     })
@@ -260,6 +262,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                             propertyKeys: data.propertyKeys,
                             relationshipDefinitions: data.relationshipDefinitions,
                             asModelDefinitions: data.asModelDefinitions,
+                            graphConfigurations: data.graphConfigurations,
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -361,6 +364,7 @@ const getLabelPackage = ({
     propertyKeys,
     relationshipDefinitions,
     asModelDefinitions,
+    graphConfigurations,
 }) => {
     let packageData = {
         dbName,
@@ -379,6 +383,7 @@ const getLabelPackage = ({
             features,
             graphVariables: variables,
             traversalSource: 'g',
+            graphConfigurations,
         },
         ...(asModelDefinitions && {
             modelDefinitions: {
