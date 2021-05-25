@@ -38,6 +38,8 @@ const {
     checkGraphTraversalSourceScript,
     getGraphTraversalSourceScript,
     getGraphConfigurations,
+    getGraphTraversalSourceScriptFromConfiguredGraphFactory,
+    checkGraphTraversalSourceScriptFromConfiguredGraphFactory,
 } = require('./helpers/gremlinScriptsHelper');
 
 let client;
@@ -738,10 +740,18 @@ const getGraphTraversalByGraphName = (graphName, logger) => {
     return client
         .submit(checkGraphTraversalSourceScript(graphName))
         .then(() => getGraphTraversalSourceScript(graphName))
-        .catch(error => {
+        .catch(async error => {
             logger.log('error', prepareError(error), 'Get traversal from JanusGraphManager error');
 
-            return `${graphName}.traversal()`;
+            try {
+                await client.submit(checkGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName));
+
+                return getGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName);
+            } catch (error) {
+                logger.log('error', prepareError(error), 'Get traversal from ConfiguredGraphFactory error');
+
+                `${graphName}.traversal()`;
+            }
         });
 };
 
@@ -759,14 +769,24 @@ const getConfigurations = logger => {
 };
 
 const getGraphNames = () => {
+    let graphs = [];
     return client
         .submit('org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraphNames()')
-        .then(graphNames => graphNames.toArray().filter(graphName => graphName !== 'ConfigurationManagementGraph'));
+        .then(graphNames => {
+            graphs = graphNames.toArray().filter(graphName => graphName !== 'ConfigurationManagementGraph');
+        })
+        .then(async () => {
+            try {
+                const graphNames = await client.submit('ConfiguredGraphFactory.getGraphNames()');
+                graphs = _.union(graphs, graphNames.toArray());
+            } catch (error) {}
+        })
+        .then(() => _.uniq(graphs));
 };
 
 const setCurrentTraversalSource = async (graphName, logger) => {
-    state.traversalSource = await getGraphTraversalByGraphName(graphName, logger)
-}
+    state.traversalSource = await getGraphTraversalByGraphName(graphName, logger);
+};
 
 module.exports = {
     connect,

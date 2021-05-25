@@ -68,19 +68,23 @@ module.exports = {
                     }
                 }
 
-                try {
-                    const data = await Promise.all(
-                        graphNames.map(async graphName => {
+                const data = await Promise.all(
+                    graphNames
+                        .map(async graphName => {
                             return gremlinHelper
                                 .getLabels(await gremlinHelper.getGraphTraversalByGraphName(graphName, logger))
-                                .then(dbCollections => ({ dbCollections, dbName: graphName }));
+                                .then(dbCollections => ({ dbCollections, dbName: graphName }))
+                                .catch(error => {
+                                    logger.log(
+                                        'error',
+                                        prepareError(error),
+                                        `Retrieving labels data error graph: ${graphName}`
+                                    );
+                                });
                         })
-                    );
-                    cb(null, data);
-                } catch (error) {
-                    logger.log('error', prepareError(error), 'Retrieving labels data error');
-                    cb(prepareError(error));
-                }
+                        .filter(Boolean)
+                );
+                cb(null, data);
             })
             .catch(error => {
                 logger.log('error', prepareError(error));

@@ -175,6 +175,12 @@ const checkGraphTraversalSourceScript = graphName =>
 const getGraphTraversalSourceScript = graphName =>
     `org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraph('${graphName}').traversal()`;
 
+const checkGraphTraversalSourceScriptFromConfiguredGraphFactory = graphName =>
+    `ConfiguredGraphFactory.open('${graphName}').traversal().V().limit(1); 1`;
+
+const getGraphTraversalSourceScriptFromConfiguredGraphFactory = graphName =>
+    `ConfiguredGraphFactory.open('${graphName}').traversal()`;
+
 const getGraphConfigurations = traversalSource => 
     `cnfg = ${traversalSource}.getGraph().configuration();
     cnfg.getKeys().collect{item -> [item, cnfg.getProperty(item)]}`
@@ -204,4 +210,6 @@ module.exports = {
     checkGraphTraversalSourceScript,
     getGraphTraversalSourceScript,
     getGraphConfigurations,
+    checkGraphTraversalSourceScriptFromConfiguredGraphFactory,
+    getGraphTraversalSourceScriptFromConfiguredGraphFactory,
 };
