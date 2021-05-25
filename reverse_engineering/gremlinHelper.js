@@ -743,15 +743,13 @@ const getGraphTraversalByGraphName = (graphName, logger) => {
         .catch(async error => {
             logger.log('error', prepareError(error), 'Get traversal from JanusGraphManager error');
 
-            try {
-                await client.submit(checkGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName));
+            await client.submit(checkGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName));
+        })
+        .then(traversal => traversal || getGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName))
+        .catch(error => {
+            logger.log('error', prepareError(error), 'Get traversal from ConfiguredGraphFactory error');
 
-                return getGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName);
-            } catch (error) {
-                logger.log('error', prepareError(error), 'Get traversal from ConfiguredGraphFactory error');
-
-                `${graphName}.traversal()`;
-            }
+            return `${graphName}.traversal()`;
         });
 };
 

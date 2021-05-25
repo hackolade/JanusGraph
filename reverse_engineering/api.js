@@ -78,13 +78,12 @@ module.exports = {
                                     logger.log(
                                         'error',
                                         prepareError(error),
-                                        `Retrieving labels data error graph: ${graphName}`
+                                        `Retrieving labels data error graph: "${graphName}"`
                                     );
                                 });
                         })
-                        .filter(Boolean)
                 );
-                cb(null, data);
+                cb(null, data.filter(Boolean));
             })
             .catch(error => {
                 logger.log('error', prepareError(error));
