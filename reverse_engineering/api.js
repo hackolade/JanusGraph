@@ -69,19 +69,18 @@ module.exports = {
                 }
 
                 const data = await Promise.all(
-                    graphNames
-                        .map(async graphName => {
-                            return gremlinHelper
-                                .getLabels(await gremlinHelper.getGraphTraversalByGraphName(graphName, logger))
-                                .then(dbCollections => ({ dbCollections, dbName: graphName }))
-                                .catch(error => {
-                                    logger.log(
-                                        'error',
-                                        prepareError(error),
-                                        `Retrieving labels data error graph: "${graphName}"`
-                                    );
-                                });
-                        })
+                    graphNames.map(async graphName => {
+                        return gremlinHelper
+                            .getLabels(await gremlinHelper.getGraphTraversalByGraphName(graphName, logger))
+                            .then(dbCollections => ({ dbCollections, dbName: graphName }))
+                            .catch(error => {
+                                logger.log(
+                                    'error',
+                                    prepareError(error),
+                                    `Retrieving labels data error graph: "${graphName}"`
+                                );
+                            });
+                    })
                 );
                 cb(null, data.filter(Boolean));
             })
@@ -122,6 +121,30 @@ module.exports = {
                         metaData.variables = await gremlinHelper.getVariables();
                         metaData.propertyKeys = await gremlinHelper.getPropertyKeys();
                         metaData.graphConfigurations = await gremlinHelper.getConfigurations(logger);
+
+                        metaData.schemaConstraints = Boolean(
+                            metaData.graphConfigurations.find(
+                                item =>
+                                    item.graphConfigurationKey === 'schema.constraints' &&
+                                    item.graphConfigurationValue.toString() === 'true'
+                            )
+                        );
+
+                        metaData.schemaDefault =
+                            metaData.graphConfigurations.find(
+                                item =>
+                                    item.graphConfigurationKey === 'schema.default' &&
+                                    item.graphConfigurationValue.toString() === 'true'
+                            )?.graphConfigurationValue || 'default';
+
+                        metaData.graphConfigurations = metaData.graphConfigurations.filter(item =>
+                            ![
+                                'Template_Configuration',
+                                'Created_Using_Template',
+                                'schema.constraints',
+                                'schema.default',
+                            ].includes(item.graphConfigurationKey)
+                        );
                     })
                     .then(() => gremlinHelper.getIndexes())
                     .then(({ compositeIndexes, mixedIndexes, vertexCentricIndexes }) => {
@@ -175,6 +198,8 @@ module.exports = {
                             propertyKeys: metaData.propertyKeys,
                             asModelDefinitions: data.asModelDefinitions,
                             graphConfigurations: metaData.graphConfigurations,
+                            schemaConstraints: metaData.schemaConstraints,
+                            schemaDefault: metaData.schemaDefault,
                             relationshipDefinitions,
                         });
                     })
@@ -285,6 +310,8 @@ const getNodesData = (dbName, labels, logger, data) => {
                             relationshipDefinitions: data.relationshipDefinitions,
                             asModelDefinitions: data.asModelDefinitions,
                             graphConfigurations: data.graphConfigurations,
+                            schemaConstraints: data.schemaConstraints,
+                            schemaDefault: data.schemaDefault,
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -387,6 +414,8 @@ const getLabelPackage = ({
     relationshipDefinitions,
     asModelDefinitions,
     graphConfigurations,
+    schemaConstraints,
+    schemaDefault,
 }) => {
     let packageData = {
         dbName,
@@ -406,6 +435,10 @@ const getLabelPackage = ({
             graphVariables: variables,
             traversalSource: 'g',
             graphConfigurations,
+            graphFactory: 'JanusGraphFactory',
+            useConfiguration: true,
+            schemaConstraints,
+            schemaDefault,
         },
         ...(asModelDefinitions && {
             modelDefinitions: {
