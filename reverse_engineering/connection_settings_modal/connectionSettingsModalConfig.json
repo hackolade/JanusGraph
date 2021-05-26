@@ -28,7 +28,7 @@
 				"inputKeyword": "graphName",
 				"inputType": "text",
 				"inputPlaceholder": "graph",
-				"defaultValue": "graph"
+				"description": "Optionally specify a graph to limit scope of delivery"
 			}
 		]
 	},
