@@ -113,7 +113,6 @@ making sure that you maintain a proper JSON format.
 			}
 
 */
-
 [
 	{
 		"lowerTab": "Details",
@@ -135,41 +134,65 @@ making sure that you maintain a proper JSON format.
 				"markdown": false
 			},
 			{
+				"propertyName": "Graph variables",
+				"propertyType": "group",
+				"propertyKeyword": "graphVariables",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "graphVariableKey",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "graphVariableValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			{
+				"propertyName": "Graph factory",
+				"propertyKeyword": "graphFactory",
+				"propertyTooltip": "",
+				"propertyType": "select",
+				"options": [
+					"JanusGraphFactory",
+					"ConfiguredGraphFactory"
+				]
+			},
+			{
+				"propertyName": "Use configuration",
+				"propertyKeyword": "useConfiguration",
+				"propertyTooltip": "Specify wether to use configuration.",
+				"propertyType": "checkbox"
+			},
+			{
 				"propertyName": "Schema default",
-				"propertyKeyword": "schema.default",
+				"propertyKeyword": "schemaDefault",
 				"propertyTooltip": "Configures the DefaultSchemaMaker to be used by this graph.",
 				"propertyType": "select",
 				"options": [
 					"default",
 					"none",
 					"logging"
-				]
+				],
+				"dependency": {
+					"key": "useConfiguration",
+					"value": true
+				}
 			},
 			{
 				"propertyName": "Schema constraints",
-				"propertyKeyword": "schema.constraints",
+				"propertyKeyword": "schemaConstraints",
 				"propertyTooltip": "Configures the schema constraints to be used by this graph. If 'schema.constraints' is set to 'true' and 'schema.default' is NOT set 'none', schema constraints are automatically created as described in the config option 'schema.default'. ",
-				"propertyType": "checkbox"
-			},
-	        {
-          		"propertyName": "Graph variables",
-				"propertyType": "group",
-           		"propertyKeyword": "graphVariables",
-           		"propertyTooltip": "",
-           		"structure": [
-           			{
-               			"propertyName": "Key",
-               			"propertyKeyword": "graphVariableKey",
-               			"propertyTooltip": "",
-						"propertyType": "text"
-           			},
-           			{
-						"propertyName": "Value",
-               			"propertyKeyword": "graphVariableValue",
-               			"propertyTooltip": "",
-               			"propertyType": "text"
-           			}
-           		]
+				"propertyType": "checkbox",
+				"dependency": {
+					"key": "useConfiguration",
+					"value": true
+				}
 			},
 			{
 				"propertyName": "Graph configurations",
@@ -189,7 +212,11 @@ making sure that you maintain a proper JSON format.
 						"propertyTooltip": "",
 						"propertyType": "text"
 					}
-				]
+				],
+				"dependency": {
+					"key": "useConfiguration",
+					"value": true
+				}
 			},
 			{
 				"propertyName": "Description",
