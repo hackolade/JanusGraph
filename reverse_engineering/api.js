@@ -143,6 +143,7 @@ module.exports = {
                                 'Created_Using_Template',
                                 'schema.constraints',
                                 'schema.default',
+                                'graph.graphname'
                             ].includes(item.graphConfigurationKey)
                         );
                     })
