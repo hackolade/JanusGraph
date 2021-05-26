@@ -166,7 +166,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Use configuration",
 				"propertyKeyword": "useConfiguration",
-				"propertyTooltip": "Specify wether to use configuration.",
+				"propertyTooltip": "Specify wether to create configuration.",
 				"propertyType": "checkbox"
 			},
 			{

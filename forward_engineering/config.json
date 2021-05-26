@@ -9,15 +9,6 @@
 	},
 	"additionalOptions": [
 		{
-			"id": "useConfiguredGraphFactory",
-			"value": false,
-			"name": "Use ConfigurationManagementGraph APIs",
-			"align": "left",
-			"level": {
-				"entity": false
-			}
-		},
-		{
 			"id": "INCLUDE_SAMPLES",
 			"value": true,
 			"name": "Include sample data",

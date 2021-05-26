@@ -18,10 +18,20 @@ const generateJanusGraphSchema = ({
 }) => {
     setDependencies(app);
 
-    const useConfiguredGraphFactory = options?.additionalOptions[0]?.value;
+    const useConfiguredGraphFactory = containerData[0]?.graphFactory === 'ConfiguredGraphFactory';
+    const schemaDefault = containerData[0]?.schemaDefault;
+    const schemaConstraints = containerData[0]?.schemaConstraints;
+    const useConfiguration = containerData[0]?.useConfiguration;
     const graphName = containerData[0]?.code || containerData[0]?.name || 'graph';
     const containerTraversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
-    const graphConfigurations = _.get(containerData, [0, 'graphConfigurations'], []);
+    const graphConfigurations = useConfiguration
+        ? prepareGraphConfigurations(
+              graphName,
+              _.get(containerData, [0, 'graphConfigurations'], []),
+              schemaDefault,
+              schemaConstraints
+          )
+        : [];
     const traversalSource = transformToValidGremlinName(containerTraversalSource);
 
     const parsedCollections = collections.map(JSON.parse);
@@ -38,8 +48,16 @@ const generateJanusGraphSchema = ({
     });
 
     const graphCreationScript = useConfiguredGraphFactory
-        ? getGraphCreationScriptWithConfiguredGraphFactory(graphName, traversalSource, graphConfigurations)
-        : getGraphCreationScriptWithJanusGraphFactory(graphName, traversalSource, graphConfigurations);
+        ? getGraphCreationScriptWithConfiguredGraphFactory({
+              graphName,
+              traversalSource,
+              graphConfigurations,
+          })
+        : getGraphCreationScriptWithJanusGraphFactory({
+              graphName,
+              traversalSource,
+              graphConfigurations,
+          });
     const verticesScript = generateVertices({ collections: parsedCollections, app });
     const edgesScript = generateEdges({ vertices: parsedCollections, relationships: parsedRelationships, app });
     const indexesScript = generateIndexes({
@@ -59,9 +77,37 @@ const generateJanusGraphSchema = ({
     return [graphCreationScript, getRollback(traversalSource), createItemsScript].filter(Boolean).join('\n\n\n').trim();
 };
 
-const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
+const prepareGraphConfigurations = (
+    graphName,
+    graphConfigurations,
+    schemaDefault = 'default',
+    schemaConstraints = false
+) => {
+    const hasGraphNameConfiguration = graphConfigurations.find(
+        item => item.graphConfigurationKey === 'graph.graphname'
+    );
+    const graphNameConfiguration = !hasGraphNameConfiguration
+        ? [{ graphConfigurationKey: 'graph.graphname', graphConfigurationValue: graphName }]
+        : [];
+
+    const schemaDefaultConfiguration = [
+        { graphConfigurationKey: 'schema.default', graphConfigurationValue: schemaDefault },
+    ];
+    const schemaConstraintsConfiguration = schemaConstraints
+        ? [{ graphConfigurationKey: 'schema.constraints', graphConfigurationValue: true }]
+        : [];
+
+    return _.uniqBy(
+        graphConfigurations
+            .concat(graphNameConfiguration)
+            .concat(schemaDefaultConfiguration)
+            .concat(schemaConstraintsConfiguration),
+        item => item.graphConfigurationKey
+    );
+};
+
+const getGraphCreationScriptWithConfiguredGraphFactory = ({ graphName, traversalSource, graphConfigurations = [] }) =>
     getGraphCreationScript({
-        graphName,
         graphConfigurations,
         mapConfiguration: configuration =>
             `conf.put("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
@@ -74,9 +120,8 @@ const getGraphCreationScriptWithConfiguredGraphFactory = (graphName, traversalSo
             }("${graphName}").traversal();`,
     });
 
-const getGraphCreationScriptWithJanusGraphFactory = (graphName, traversalSource, graphConfigurations = []) =>
+const getGraphCreationScriptWithJanusGraphFactory = ({ graphName, traversalSource, graphConfigurations = [] }) =>
     getGraphCreationScript({
-        graphName,
         graphConfigurations,
         mapConfiguration: configuration =>
             `conf.setProperty("${configuration.graphConfigurationKey}", "${configuration.graphConfigurationValue}");`,
@@ -89,26 +134,18 @@ const getGraphCreationScriptWithJanusGraphFactory = (graphName, traversalSource,
     });
 
 const getGraphCreationScript = ({
-    graphName,
     graphConfigurations = [],
     mapConfiguration,
     getConfigScript,
     getCreateConfigurationScript,
     getCreateGraphScript,
 }) => {
-    const hasGraphNameConfiguration = graphConfigurations.find(
-        item => item.graphConfigurationKey === 'graph.graphname'
-    );
-    const graphNameConfiguration = !hasGraphNameConfiguration
-        ? [{ graphConfigurationKey: 'graph.graphname', graphConfigurationValue: graphName }]
-        : [];
-
-    const configurations = graphConfigurations.concat(graphNameConfiguration).map(mapConfiguration).join('\n');
+    const configurations = graphConfigurations.map(mapConfiguration).join('\n');
     const configurationScript = getConfigScript(configurations);
 
     const createConfigurationScript = getCreateConfigurationScript(configurationScript);
 
-    return getCreateGraphScript(_.isEmpty(graphConfigurations) ? '' : createConfigurationScript);
+    return getCreateGraphScript(_.isEmpty(configurations) ? '' : createConfigurationScript);
 };
 
 const getRollback = traversalSource => `${traversalSource}.tx().rollback()`;
