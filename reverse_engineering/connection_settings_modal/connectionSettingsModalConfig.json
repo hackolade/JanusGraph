@@ -24,11 +24,11 @@
 				"defaultValue": 8182
 			},
 			{
-				"inputLabel": "Graph name",
-				"inputKeyword": "graphName",
+				"inputLabel": "Traversal Source",
+				"inputKeyword": "traversalSource",
 				"inputType": "text",
-				"inputPlaceholder": "graph",
-				"description": "Optionally specify a graph to limit scope of delivery"
+				"inputPlaceholder": "g",
+				"defaultValue": "g"
 			}
 		]
 	},

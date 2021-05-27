@@ -3,14 +3,5 @@
 		"NO_DATABASES": "There is no databases in this JanusGraph instance",
 		"WRONG_CONNECTION": "Cannot connect to JanusGraph instance"
 	},
-	"excludeDocKind": [
-		"id"
-	],
-	"options": [
-		{
-			"inputLabel": "Reverse-engineer property keys as model definitions",
-			"inputTooltip": "Reverse-engineer property keys as model definitions with references in vertex labels",
-			"inputKeyword": "asModelDefinitions"
-		}
-	]
+	"excludeDocKind": ["id"]
 }

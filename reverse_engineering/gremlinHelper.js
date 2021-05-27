@@ -10,37 +10,8 @@ const {
     getSSLConfig,
     getListSubtypeByItemType,
     prepareError,
-    getDataType,
 } = require('./utils');
 const { getSnippet } = require('./helpers/snippetHelper');
-const {
-    getVertexLabelsFromSchema,
-    getVertexLabelsFromData,
-    getEdgesDataFromData,
-    getEdgeDataFromSchema,
-    getNodesData,
-    getRelationshipDataScript,
-    getNodesCountScript,
-    getRelationshipsCountScript,
-    getVertexIndexes,
-    getEdgeIndexes,
-    getRelationIndexes,
-    getGraphFeatures,
-    getGraphVariables,
-    wrapInGraphSONMapperScript,
-    getDataQuery,
-    getTemplateData,
-    getEdgeLabelsScript,
-    getPropertyKeysScript,
-    getVertexLabelDataScript,
-    getGraphSchemaScript,
-    getMetaPropertiesDataQuery,
-    checkGraphTraversalSourceScript,
-    getGraphTraversalSourceScript,
-    getGraphConfigurations,
-    getGraphTraversalSourceScriptFromConfiguredGraphFactory,
-    checkGraphTraversalSourceScriptFromConfiguredGraphFactory,
-} = require('./helpers/gremlinScriptsHelper');
 
 let client;
 let state = {
@@ -88,25 +59,25 @@ const connectViaSsh = info =>
         });
     });
 
-const connect = (info, logger) => {
+const connect = info => {
     if (info.ssh) {
         return connectViaSsh(info).then(({ info, tunnel }) => {
             sshTunnel = tunnel;
 
-            return connectToInstance(info, logger);
+            return connectToInstance(info);
         });
     } else {
-        return connectToInstance(info, logger);
+        return connectToInstance(info);
     }
 };
 
-const connectToInstance = (info, logger) => {
+const connectToInstance = info => {
     return new Promise((resolve, reject) => {
         const host = info.host;
         const port = info.port;
         const username = info.username;
         const password = info.password;
-        const graphName = info.graphName;
+        const traversalSource = info.traversalSource || 'g';
         const needSasl = username && password;
         const sslOptions = getSSLConfig(info);
         const protocol = _.isEmpty(sslOptions) ? 'ws' : 'wss';
@@ -121,6 +92,7 @@ const connectToInstance = (info, logger) => {
                     pongTimeout: info.queryRequestTimeout,
                     pingTimeout: info.queryRequestTimeout,
                     authenticator,
+                    traversalSource,
                 },
                 sslOptions
             )
@@ -128,8 +100,8 @@ const connectToInstance = (info, logger) => {
 
         client
             .open()
-            .then(async () => {
-                state.traversalSource = await getGraphTraversalByGraphName(graphName, logger);
+            .then(() => {
+                state.traversalSource = traversalSource;
                 resolve();
             })
             .catch(error => {
@@ -143,7 +115,7 @@ const testConnection = () => {
         return Promise.reject('Connection error');
     }
 
-    return client.submit(`${state.traversalSource}.V().count()`);
+    return client.submit(`${state.traversalSource}.V().next()`);
 };
 
 const close = () => {
@@ -157,19 +129,22 @@ const close = () => {
     }
 };
 
-const getLabels = traversalSource => {
+const getLabels = () => {
     return Promise.all([
-        client.submit(getVertexLabelsFromSchema(traversalSource || state.traversalSource)),
-        client.submit(getVertexLabelsFromData(traversalSource || state.traversalSource)),
+        client.submit(
+            `${state.traversalSource}.getGraph().openManagement().getVertexLabels().collect{label -> label.name()}`
+        ),
+        client.submit(`${state.traversalSource}. V().label().dedup().toList()`),
     ]).then(([labels1, labels2]) => _.concat(labels1.toArray(), labels2.toArray()));
 };
 
 const getRelationshipSchema =
     (logger, limit = 100) =>
-    labels =>
-        Promise.all(
+    labels => {
+        return Promise.all(
             labels.map(label => {
                 let edgesData = [];
+
                 const mapRelationship = relationship => ({
                     start: relationship.get('start'),
                     relationship: relationship.get('relationship'),
@@ -181,31 +156,62 @@ const getRelationshipSchema =
                 });
 
                 return client
-                    .submit(getEdgesDataFromData(state.traversalSource, label.name, limit))
-                    .then(
-                        dataEdges => {
-                            edgesData = _.uniqWith(dataEdges.toArray().map(mapRelationship), _.isEqual);
-                        },
-                        error =>
-                            logger.log('error', prepareError(error), 'Error while retrieving connections from data')
+                    .submit(
+                        `${state.traversalSource}
+                        .E()
+                        .hasLabel('${label.name}')
+                        .limit(${limit})
+                        .collect{edgeLabel -> [
+                            "relationship": '${label.name}',
+                            "start": edgeLabel.getVertex(0).label(),
+                            "end": edgeLabel.getVertex(1).label()
+                        ]}
+                        .toList()`
                     )
-                    .then(() => client.submit(getEdgeDataFromSchema(state.traversalSource, label.name)))
-                    .then(
-                        schemaEdges => {
-                            const relationships = schemaEdges.toArray().map(mapRelationship);
-                            return _.uniqWith(relationships.concat(edgesData), _.isEqual);
-                        },
-                        error => {
-                            logger.log(
-                                'error',
-                                prepareError(error),
-                                'Error while retrieving connections with management'
-                            );
-                            return edgesData;
-                        }
-                    );
+                    .then(dataEdges => {
+                        edgesData = _.uniqWith(dataEdges.toArray().map(mapRelationship), _.isEqual);
+                    })
+                    .catch(error =>
+                        logger.log('error', prepareError(error), 'Error while retrieving connections from data')
+                    )
+                    .then(() =>
+                        client.submit(
+                            `${state.traversalSource}.
+						    getGraph().
+						    openManagement().
+						    getEdgeLabel('${label.name}').
+						    mappedConnections().
+                            inject([]) {accumulator, connection -> 
+                                def currentConnection = [ 
+                                    "relationship": '${label.name}', 
+                                    "start": connection.getOutgoingVertexLabel().name(), 
+                                    "end": connection.getIncomingVertexLabel().name() 
+                                ]
+                                def temp = accumulator.findAll {it -> it.start == currentConnection.start && it.end == currentConnection.end }.size
+                                temp == 0 ? accumulator.add(currentConnection) : accumulator
+                                accumulator
+                            }.
+						    toList()
+                        `
+                        )
+                    )
+                    .then(schemaEdges => {
+                        const relationships = schemaEdges.toArray().map(mapRelationship);
+
+                        return _.uniqWith(relationships.concat(edgesData), _.isEqual);
+                    })
+                    .catch(error => {
+                        logger.log('error', prepareError(error), 'Error while retrieving connections with management');
+
+                        return edgesData;
+                    });
             })
         );
+    };
+
+const getDatabaseName = () => {
+    return Promise.resolve(state.traversalSource);
+};
 
 const getItemProperties = propertiesMap => {
     return Array.from(propertiesMap).reduce((obj, [key, rawValue]) => {
@@ -235,13 +241,18 @@ const handleMap = map => {
 
 const getNodes = (label, limit = 100) => {
     return client
-        .submit(getNodesData(state.traversalSource, label, limit))
+        .submit(`${state.traversalSource}.V().hasLabel('${label}').limit(${limit}).valueMap(true).toList()`)
         .then(res => res.toArray().map(getItemProperties));
 };
 
 const getRelationshipData = ({ start, relationship, end, limit = 100, propertyKeys, properties }) => {
     return client
-        .submit(getRelationshipDataScript(state.traversalSource, relationship, start, end, limit))
+        .submit(
+            `${state.traversalSource}.E().hasLabel('${relationship}').where(and(
+			outV().label().is(eq('${start}')),
+			inV().label().is(eq('${end}')))
+		).limit(${limit}).valueMap(true).toList()`
+        )
         .then(relationshipData => relationshipData.toArray().map(getItemProperties))
         .then(documents =>
             getSchema({ gremlinElement: 'E', documents, label: relationship, limit, propertyKeys, properties })
@@ -249,20 +260,73 @@ const getRelationshipData = ({ start, relationship, end, limit = 100, propertyKe
 };
 
 const getNodesCount = label => {
-    return client.submit(getNodesCountScript(state.traversalSource, label)).then(res => res.first());
+    return client.submit(`${state.traversalSource}.V().hasLabel('${label}').count().next()`).then(res => res.first());
 };
 
 const getCountRelationshipsData = (start, relationship, end) => {
     return client
-        .submit(getRelationshipsCountScript(state.traversalSource, relationship, start, end))
+        .submit(
+            `${state.traversalSource}.E().hasLabel('${relationship}').where(and(
+		outV().label().is(eq('${start}')),
+		inV().label().is(eq('${end}')))
+	).count().next()`
+        )
         .then(data => data.toArray());
 };
 
 const getIndexes = () => {
     return Promise.all([
-        client.submit(getVertexIndexes(state.traversalSource)),
-        client.submit(getEdgeIndexes(state.traversalSource)),
-        client.submit(getRelationIndexes(state.traversalSource)),
+        client.submit(`
+			${state.traversalSource}
+				.getGraph()
+				.openManagement()
+				.getGraphIndexes(Vertex.class)
+				.collect{element -> 
+                    [element.name(), 
+                        element, 
+                        element.getFieldKeys().collect{field -> 
+                            [field.name(),element.getParametersFor(field).collect{i -> [i.key(), i.value().toString()]}] 
+                        }
+                    ]
+                };
+			`),
+        client.submit(`
+			${state.traversalSource}
+				.getGraph()
+				.openManagement()
+				.getGraphIndexes(Edge.class)
+                .collect{element -> 
+                    [element.name(), 
+                        element, 
+                        element.getFieldKeys().collect{field -> 
+                            [field.name(),element.getParametersFor(field).collect{i -> [i.key(), i.value().toString()]}] 
+                        }
+                    ]
+                };
+			`),
+        client.submit(`
+			relationIndexes = [];
+
+			${state.traversalSource}
+				.getGraph()
+				.openManagement()
+				.getRelationTypes(RelationType.class)
+				.eachWithIndex{rt, index -> relationIndexes[index] = g.getGraph().openManagement().getRelationIndexes(rt)};
+				
+			relationIndexes
+				.findAll{item -> item.size() > 0}
+				.inject([]){ temp, val -> temp.plus(val)}
+				.collect{ri -> 
+                    [ri.name(), 
+                        ri.getType().name(), 
+                        ri.getDirection(), 
+                        ri.getSortKey()[0].name(),
+                        ri.getSortOrder(), 
+                        ri.getIndexStatus().name(),
+                        ri.getSortKey().collect{key -> key.name()}
+                    ]
+                }; 
+			`),
     ]).then(data => {
         const vertexIndexes = data[0].toArray();
         const edgeIndexes = data[1].toArray();
@@ -307,7 +371,7 @@ const getIndexes = () => {
 };
 
 const getFeatures = () =>
-    client.submit(getGraphFeatures(state.traversalSource)).then(data => {
+    client.submit(`${state.traversalSource}.getGraph().features()`).then(data => {
         const features = data.first();
         if (!_.isString(features)) {
             return '';
@@ -317,7 +381,7 @@ const getFeatures = () =>
     });
 
 const getVariables = () =>
-    client.submit(getGraphVariables(state.traversalSource)).then(data => {
+    client.submit(`${state.traversalSource}.getGraph().variables().asMap()`).then(data => {
         const variablesMaps = data.toArray();
         const variables = variablesMaps.map(handleMap);
         const formattedVariables = variables.map(variableData => {
@@ -329,7 +393,7 @@ const getVariables = () =>
 
             return {
                 graphVariableKey: variable,
-                graphVariableValue: variableValue,
+                GraphVariableValue: variableValue,
             };
         });
 
@@ -372,7 +436,7 @@ const convertRootGraphSON =
             { keys: [], values: [] }
         );
 
-        const propertiesDocument = _.union(keys, propertyNames).reduce(
+        const propertiesDocument = _.concat(keys, propertyNames).reduce(
             (properties, key, index) => ({
                 ...properties,
                 [key]: mergePropertyKey(values[index] || {}, propertyKeys[key]),
@@ -571,7 +635,36 @@ const addMetaProperties = (schema, metaProperties) => {
     });
 };
 
-const submitGraphSONDataScript = query => client.submit(wrapInGraphSONMapperScript(query));
+const submitGraphSONDataScript = query => {
+    return client.submit(
+        `GraphSONMapper.
+			build().
+            typeInfo(org.apache.tinkerpop.gremlin.structure.io.graphson.TypeInfo.PARTIAL_TYPES).
+            addCustomModule(org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV2d0.build().create(false)).
+			version(GraphSONVersion.V3_0).
+			addRegistry(JanusGraphIoRegistry.instance()).
+			create().
+			createMapper().
+			writeValueAsString(${query})`
+    );
+};
+
+const getDataQuery = (element, label, limit) =>
+    `${state.traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`;
+
+const getMetaPropertiesDataQuery = (label, limit) =>
+    `${state.traversalSource}.
+		V().
+		hasLabel('${label}').
+		limit(${limit}).
+		properties().
+		as('properties').
+		as('metaProperties').
+		select('properties','metaProperties').
+		by(label).
+		by(valueMap()).
+		dedup().
+		toList()`;
 
 const getMetaPropertiesData = (element, label, limit) => {
     if (element !== 'V') {
@@ -580,15 +673,17 @@ const getMetaPropertiesData = (element, label, limit) => {
         });
     }
 
-    return submitGraphSONDataScript(getMetaPropertiesDataQuery(state.traversalSource, label, limit));
+    return submitGraphSONDataScript(getMetaPropertiesDataQuery(label, limit));
 };
 
 const getSchema = ({ gremlinElement, documents, label, limit = 100, propertyKeys, properties }) => {
-    return submitGraphSONDataScript(getDataQuery(state.traversalSource, gremlinElement, label, limit))
+    return submitGraphSONDataScript(getDataQuery(gremlinElement, label, limit))
         .then(schemaData => {
             return getMetaPropertiesData(gremlinElement, label, limit).then(metaPropertiesData => {
                 return client
-                    .submit(getTemplateData(state.traversalSource, gremlinElement, label, limit))
+                    .submit(
+                        `${state.traversalSource}.${gremlinElement}().hasLabel('${label}').limit(${limit}).properties().order().by().label().dedup().toList()`
+                    )
                     .then(templateData => ({
                         metaProperties: metaPropertiesData.first(),
                         documentsGraphSONSchema: schemaData.first(),
@@ -615,6 +710,40 @@ const getSchema = ({ gremlinElement, documents, label, limit = 100, propertyKeys
                 return { documents, schema: {}, template: [] };
             }
         });
+};
+
+const getType = rawType => {
+    switch (rawType) {
+        case 'g:List':
+            return { type: 'list' };
+        case 'g:Map':
+            return { type: 'map' };
+        case 'g:Set':
+            return { type: 'set' };
+        case 'g:Double':
+            return { type: 'number', mode: 'double' };
+        case 'g:Int32':
+            return { type: 'number', mode: 'integer' };
+        case 'g:Int64':
+            return { type: 'number', mode: 'long' };
+        case 'g:Float':
+            return { type: 'number', mode: 'float' };
+        case 'g:Date':
+            return { type: 'date' };
+        case 'g:UUID':
+            return { type: 'uuid' };
+        case 'janusgraph:Geoshape':
+            return { type: 'geoshape' };
+        case 'gx:Char':
+            return { type: 'char' };
+        case 'gx:Byte':
+            return { type: 'number', mode: 'byte' };
+        case 'gx:Int16':
+            return { type: 'number', mode: 'short' };
+        default: {
+            return { type: 'string' };
+        }
+    }
 };
 
 const groupPropertiesForMap = properties => {
@@ -661,7 +790,7 @@ const convertGraphSonToSchema = graphSON => {
     }
 
     const rawType = graphSON['@type'];
-    const typeData = getDataType(rawType);
+    const typeData = getType(rawType);
     const rawProperties = graphSON['@value'];
 
     if (typeData.type === 'geoshape') {
@@ -684,106 +813,94 @@ const convertGraphSonToSchema = graphSON => {
 };
 
 const getRelationshipsLabels = () => {
-    return client.submit(getEdgeLabelsScript(state.traversalSource)).then(labels =>
-        labels.toArray().map(edgeLabel => {
-            const edgeTTL = getTTL(edgeLabel.get('edgeTTL'));
+    return client
+        .submit(
+            `${state.traversalSource}
+			.getGraph()
+			.openManagement()
+			.getRelationTypes(EdgeLabel.class)
+			.collect{relation -> [
+				"name": relation.name(),
+				"isUnidirected": relation.isUnidirected(),
+				"multiplicity": relation.multiplicity().name(),
+				"edgeTTL": relation.getTTL(),
+				"properties": relation.mappedProperties().collect{item -> item.name()}
+			]}`
+        )
+        .then(labels =>
+            labels.toArray().map(edgeLabel => {
+                const edgeTTL = getTTL(edgeLabel.get('edgeTTL'));
 
-            return {
-                name: edgeLabel.get('name'),
-                biDirectional: !edgeLabel.get('isUnidirected'),
-                multiplicity: edgeLabel.get('multiplicity'),
-                properties: edgeLabel.get('properties'),
-                ...(edgeTTL ? { edgeTTL } : {}),
-            };
-        })
-    );
+                return {
+                    name: edgeLabel.get('name'),
+                    biDirectional: !edgeLabel.get('isUnidirected'),
+                    multiplicity: edgeLabel.get('multiplicity'),
+                    properties: edgeLabel.get('properties'),
+                    ...(edgeTTL ? { edgeTTL } : {}),
+                };
+            })
+        );
 };
 
 const getPropertyKeys = () => {
-    return client.submit(getPropertyKeysScript(state.traversalSource)).then(propertyKeys =>
-        Object.fromEntries(
-            propertyKeys
-                .toArray()
-                .map(property => [
-                    property.get('name'),
-                    {
-                        cardinality: property.get('cardinality'),
-                        dataType: property.get('dataType'),
-                        propertyTTL: getTTL(property.get('TTL')),
-                    },
-                ])
-                .map(([key, value]) => [key, getPropertyData(value)])
+    return client
+        .submit(
+            `${state.traversalSource}
+			.getGraph()
+			.openManagement()
+			.getRelationTypes(PropertyKey.class)
+			.collect{propertyKey -> [
+				"name": propertyKey.name(),
+				"cardinality": propertyKey.cardinality().convert(),
+				"dataType": propertyKey.dataType(),
+				"TTL": propertyKey.getTTL(),
+			]}`
         )
-    );
+        .then(propertyKeys =>
+            Object.fromEntries(
+                propertyKeys
+                    .toArray()
+                    .map(property => [
+                        property.get('name'),
+                        {
+                            cardinality: property.get('cardinality'),
+                            dataType: property.get('dataType'),
+                            propertyTTL: getTTL(property.get('TTL')),
+                        },
+                    ])
+                    .map(([key, value]) => [key, getPropertyData(value)])
+            )
+        );
 };
 
 const getVertexLabelData = name => {
-    return client.submit(getVertexLabelDataScript(state.traversalSource, name)).then(vertexLabel => {
-        const vertexData = vertexLabel.toArray();
-        const vertexTTL = getTTL(vertexData[1]);
+    return client
+        .submit(
+            `vertexLabel = ${state.traversalSource}
+				.getGraph()
+				.openManagement()
+				.getVertexLabel('${name}')
 
-        return {
-            entityLevel: {
-                staticVertex: vertexData[0],
-                ...(vertexTTL ? { vertexTTL } : {}),
-            },
-            properties: vertexLabel[2],
-        };
-    });
+			[vertexLabel.isStatic(), vertexLabel.getTTL(), vertexLabel.mappedProperties().collect{item -> item.name()}]`
+        )
+        .then(vertexLabel => {
+            const vertexData = vertexLabel.toArray();
+            const vertexTTL = getTTL(vertexData[1]);
+
+            return {
+                entityLevel: {
+                    staticVertex: vertexData[0],
+                    ...(vertexTTL ? { vertexTTL } : {}),
+                },
+                properties: vertexLabel[2],
+            };
+        });
 };
 
 const getGraphSchema = () => {
-    return client.submit(getGraphSchemaScript(state.traversalSource)).then(schema => _.first(schema.toArray()));
-};
-
-const getGraphTraversalByGraphName = (graphName, logger) => {
     return client
-        .submit(checkGraphTraversalSourceScript(graphName))
-        .then(() => getGraphTraversalSourceScript(graphName))
-        .catch(async error => {
-            logger.log('error', prepareError(error), 'Get traversal from JanusGraphManager error');
-
-            await client.submit(checkGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName));
-        })
-        .then(traversal => traversal || getGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName))
-        .catch(error => {
-            logger.log('error', prepareError(error), 'Get traversal from ConfiguredGraphFactory error');
-
-            return `${graphName}.traversal()`;
-        });
-};
-
-const getConfigurations = logger => {
-    return client
-        .submit(getGraphConfigurations(state.traversalSource))
-        .then(configs =>
-            configs.toArray().map(config => ({ graphConfigurationKey: config[0], graphConfigurationValue: config[1] }))
-        )
-        .catch(error => {
-            logger.log('error', prepareError(error), 'Get graph config error');
-
-            return [];
-        });
-};
-
-const getGraphNames = () => {
-    let graphs = [];
-    return client
-        .submit('org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraphNames()')
-        .then(graphNames => {
-            graphs = graphNames.toArray().filter(graphName => graphName !== 'ConfigurationManagementGraph');
-        })
-        .then(async () => {
-            try {
-                const graphNames = await client.submit('ConfiguredGraphFactory.getGraphNames()');
-                graphs = _.union(graphs, graphNames.toArray());
-            } catch (error) {}
-        })
-        .then(() => _.uniq(graphs));
-};
-
-const setCurrentTraversalSource = async (graphName, logger) => {
-    state.traversalSource = await getGraphTraversalByGraphName(graphName, logger);
+        .submit(`${state.traversalSource}.getGraph().openManagement().printSchema()`)
+        .then(schema => _.first(schema.toArray()));
 };
 
 module.exports = {
@@ -793,6 +910,7 @@ module.exports = {
     getLabels,
     getRelationshipData,
     getRelationshipSchema,
+    getDatabaseName,
     getNodes,
     getNodesCount,
     getCountRelationshipsData,
@@ -805,8 +923,4 @@ module.exports = {
     getVertexLabelData,
     getGraphSchema,
     mergeJsonSchemas,
-    getConfigurations,
-    getGraphNames,
-    getGraphTraversalByGraphName,
-    setCurrentTraversalSource,
 };

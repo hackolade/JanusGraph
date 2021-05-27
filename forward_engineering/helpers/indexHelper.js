@@ -1,10 +1,26 @@
-const { transformToValidGremlinName } = require('./common');
+const { setInManagement, transformToValidGremlinName, getPropertyKeyGetScript } = require('./common');
 
 let _ = null;
 const setDependencies = app => (_ = app.require('lodash'));
 
+const getRollback = traversalSource => `${traversalSource}.tx().rollback()`;
 const getGetEdgeScript = edgeName => `${edgeName} = mgmt.getEdgeLabel('${edgeName}')`;
 const getGetVertexScript = vertexName => `${vertexName} = mgmt.getVertexLabel('${vertexName}')`;
+const getAwaitRelationIndexStatus = (traversalSource, indexName, itemName) =>
+    `ManagementSystem.awaitRelationIndexStatus(${traversalSource}.getGraph(), '${indexName}', '${itemName}').call()`;
+const getAwaitGraphIndexStatus = (traversalSource, indexName) =>
+    `ManagementSystem.awaitGraphIndexStatus(${traversalSource}.getGraph(), '${indexName}').call()`;
+
+const getReindexGraphIndex = (traversalSource, indexName) => `
+mgmt = ${traversalSource}.getGraph().openManagement()
+mgmt.updateIndex(mgmt.getGraphIndex("${indexName}"), SchemaAction.REINDEX).get()
+mgmt.commit()`;
+
+const getReindexRelationIndex = (traversalSource, indexName, edgeName) => `
+mgmt = ${traversalSource}.getGraph().openManagement()
+${getGetEdgeScript(edgeName)}
+mgmt.updateIndex(mgmt.getRelationIndex(${edgeName}, '${indexName}'), SchemaAction.REINDEX).get()
+mgmt.commit()`;
 
 const generateIndexes = ({
     compositeIndexes = [],
@@ -42,6 +58,7 @@ const generateCompositeIndexesScript = ({ traversalSource, compositeIndexes, edg
             const isVertexIndex = entities.includes(firstIndexKey.path[0]);
 
             const properties = compositeIndex.indexKey.map(indexKey => transformToValidGremlinName(indexKey.name));
+            const getPropertyKeysScript = properties.map(getPropertyKeyGetScript).join('\n');
 
             const addPropertiesScript = properties.map(property => `.addKey(${property})`).join('');
             const uniqueScript = compositeIndex.unique ? '.unique()' : '';
@@ -50,7 +67,16 @@ const generateCompositeIndexesScript = ({ traversalSource, compositeIndexes, edg
                 isVertexIndex ? 'Vertex' : 'Edge'
             }.class)${addPropertiesScript}${uniqueScript}${indexOnlyData?.script || ''}.buildCompositeIndex()`;
 
-            return buildIndexScript;
+            const createIndexScript = [getPropertyKeysScript, indexOnlyData?.getItemScript, buildIndexScript]
+                .filter(Boolean)
+                .join('\n');
+
+            return [
+                getRollback(traversalSource),
+                setInManagement(traversalSource, createIndexScript),
+                getAwaitGraphIndexStatus(traversalSource, compositeIndex.name),
+                getReindexGraphIndex(traversalSource, compositeIndex.name),
+            ].join('\n');
         })
         .filter(Boolean)
         .join('\n\n');
@@ -70,6 +96,10 @@ const generateMixedIndexesScript = (traversalSource, mixedIndexes, entities) => 
                 name: transformToValidGremlinName(indexKey.name),
                 type: indexKey.type || 'TEXT',
             }));
+            const getPropertyKeysScript = properties
+                .map(property => property.name)
+                .map(getPropertyKeyGetScript)
+                .join('\n');
 
             const addPropertiesScript = properties
                 .map(
@@ -83,7 +113,14 @@ const generateMixedIndexesScript = (traversalSource, mixedIndexes, entities) => 
                 isVertexIndex ? 'Vertex' : 'Edge'
             }.class)${addPropertiesScript}.buildMixedIndex("${mixedIndexes.indexingBackend || 'search'}")`;
 
-            return buildIndexScript;
+            const createIndexScript = [getPropertyKeysScript, buildIndexScript].join('\n');
+
+            return [
+                getRollback(traversalSource),
+                setInManagement(traversalSource, createIndexScript),
+                getAwaitGraphIndexStatus(traversalSource, mixedIndex.name),
+                getReindexGraphIndex(traversalSource, mixedIndex.name),
+            ].join('\n');
         })
         .filter(Boolean)
         .join('\n\n');
@@ -105,15 +142,24 @@ const generateVertexCentricIndexes = (traversalSource, vertexCentricIndexes, edg
             }
 
             const properties = vertexCentricIndex.indexKey.map(indexKey => transformToValidGremlinName(indexKey.name));
+            const getPropertyKeysScript = properties.map(getPropertyKeyGetScript).join('\n');
             const directionScript = `Direction.${vertexCentricIndex.direction || 'BOTH'}`;
             const orderScript = vertexCentricIndex.order === 'descending' ? 'Order.desc' : 'Order.asc';
+            const getEdgeScript = getGetEdgeScript(edgeName);
             const validEdgeName = transformToValidGremlinName(edgeName);
 
             const buildIndexScript = `mgmt.buildEdgeIndex(${validEdgeName}, '${
                 vertexCentricIndex.name
             }', ${directionScript}, ${orderScript}, ${properties.join(', ')})`;
 
-            return buildIndexScript;
+            const createIndexScript = [getPropertyKeysScript, getEdgeScript, buildIndexScript].join('\n');
+
+            return [
+                getRollback(traversalSource),
+                setInManagement(traversalSource, createIndexScript),
+                getAwaitRelationIndexStatus(traversalSource, vertexCentricIndex.name, edgeName),
+                getReindexRelationIndex(traversalSource, vertexCentricIndex.name, edgeName),
+            ].join('\n');
         })
         .filter(Boolean)
         .join('\n\n');

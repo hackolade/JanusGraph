@@ -23,11 +23,6 @@ const getEdgeLabelScript = vertices => relationship => {
     const edgeTTL = getTTlScript(name, relationship.edgeTTL);
     const toVertex = vertices.find(vertex => vertex.GUID === relationship.childCollection);
     const fromVertex = vertices.find(vertex => vertex.GUID === relationship.parentCollection);
-
-    if (!toVertex || !fromVertex) {
-        return '';
-    }
-
     const fromVertexName = transformToValidGremlinName(fromVertex.code || fromVertex.collectionName);
     const toVertexName = transformToValidGremlinName(toVertex.code || toVertex.collectionName);
     const connectionScript = `mgmt.addConnection(${name}, ${fromVertexName}, ${toVertexName})`;
