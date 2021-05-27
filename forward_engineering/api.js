@@ -45,9 +45,25 @@ module.exports = {
             .then(() => gremlinHelper.applyToInstance(script))
             .then(() => callback())
             .catch(error => {
-                logger.log('error', prepareError(error));
+                let preparedError = prepareError(error);
 
-                callback(prepareError(error));
+                if (/No such property:/.test(error.message)) {
+                    preparedError = {
+                        message: 'Graph with such name does not exists',
+                        originalMessage: error.message,
+                        stack: error.stack,
+                    };
+                } else if (/Adding this property for key(.*?)violates a uniqueness constraint/.test(error.message)) {
+                    preparedError = {
+                        message:
+                            'Graph with such constraints already exists or you use storage.directory of another graph',
+                        originalMessage: error.message,
+                        stack: error.stack,
+                    };
+                }
+
+                logger.log('error', preparedError);
+                callback(preparedError);
             });
     },
 
