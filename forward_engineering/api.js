@@ -47,7 +47,7 @@ module.exports = {
             .catch(error => {
                 let preparedError = prepareError(error);
 
-                if (/No such property:/.test(error.message)) {
+                if (/No such property:/.test(error.message) || /Backend shorthand unknown/.test(error.message)) {
                     preparedError = {
                         message: 'Graph with such name does not exists',
                         originalMessage: error.message,
