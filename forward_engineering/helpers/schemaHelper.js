@@ -128,9 +128,11 @@ const getGraphCreationScriptWithJanusGraphFactory = ({ graphName, traversalSourc
         getConfigScript: configurations => `conf = new BaseConfiguration();\n${configurations}`,
         getCreateConfigurationScript: configurations => `${configurations}`,
         getCreateGraphScript: configurationScript =>
-            `${configurationScript}\n${traversalSource} = JanusGraphFactory.open(${
-                _.isEmpty(configurationScript) ? `"${graphName}"` : 'conf'
-            }).traversal();`,
+            `${configurationScript}\n${traversalSource} = ${
+                _.isEmpty(configurationScript)
+                    ? `${graphName}.traversal()`
+                    : 'JanusGraphFactory.open(conf).traversal();'
+            }`,
     });
 
 const getGraphCreationScript = ({
