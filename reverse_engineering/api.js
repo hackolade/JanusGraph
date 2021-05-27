@@ -9,7 +9,7 @@ module.exports = {
     connect: function (connectionInfo, logger, cb) {
         logger.clear();
         logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-        gremlinHelper.connect(connectionInfo).then(cb, cb);
+        gremlinHelper.connect(connectionInfo, logger).then(cb, cb);
     },
 
     disconnect: function (connectionInfo, cb) {
@@ -47,29 +47,46 @@ module.exports = {
     },
 
     getDbCollectionsNames: function (connectionInfo, logger, cb) {
-        let result = {
-            dbName: '',
-            dbCollections: '',
-        };
         gremlinHelper
-            .connect(connectionInfo)
-            .then(
-                () => gremlinHelper.getLabels(),
-                error => cb({ message: 'Connection error', stack: error.stack })
-            )
-            .then(labels => {
-                result.dbCollections = labels;
-            })
-            .then(() => {
-                return gremlinHelper.getDatabaseName();
-            })
-            .then(dbName => {
-                result.dbName = dbName;
+            .connect(connectionInfo, logger)
+            .then(async () => {
+                let graphNames = [];
 
-                cb(null, [result]);
+                if (connectionInfo.graphName) {
+                    graphNames = [connectionInfo.graphName];
+                } else {
+                    try {
+                        graphNames = await gremlinHelper.getGraphNames();
+                    } catch (error) {
+                        const prepareGraphNamesError = error => ({
+                            message: `${error.message}\nPossible reason: JanusGraphManager is not configured. Please specify graph name in connection settings`,
+                            stack: error.stack,
+                        });
+
+                        logger.log('error', prepareGraphNamesError(error), 'Retrieving graph names error.');
+                        cb(prepareGraphNamesError(error));
+                    }
+                }
+
+                const data = await Promise.all(
+                    graphNames.map(async graphName => {
+                        return gremlinHelper
+                            .getLabels(await gremlinHelper.getGraphTraversalByGraphName(graphName, logger))
+                            .then(dbCollections => ({ dbCollections, dbName: graphName }))
+                            .catch(error => {
+                                logger.log(
+                                    'error',
+                                    prepareError(error),
+                                    `Retrieving labels data error graph: "${graphName}"`
+                                );
+                            });
+                    })
+                );
+                cb(null, data.filter(Boolean));
             })
             .catch(error => {
-                cb(error || 'error');
+                logger.log('error', prepareError(error));
+                cb({ message: 'Connection error', stack: error.stack });
             });
     },
 
@@ -87,26 +104,48 @@ module.exports = {
             relationships: [],
         };
 
-        async.map(
+        async.mapLimit(
             dataBaseNames,
+            1,
             (dbName, next) => {
                 let labels = collections[dbName];
                 let metaData = {};
 
                 gremlinHelper
-                    .getGraphSchema()
-                    .then(schema => logger.log('info', schema, 'Graph Schema'))
-                    .then(() => gremlinHelper.getFeatures())
-                    .then(features => {
-                        metaData.features = features;
-                    })
-                    .then(() => gremlinHelper.getVariables())
-                    .then(variables => {
-                        metaData.variables = variables;
-                    })
-                    .then(() => gremlinHelper.getPropertyKeys())
-                    .then(propertyKeys => {
-                        metaData.propertyKeys = propertyKeys;
+                    .setCurrentTraversalSource(dbName, logger)
+                    .then(() => gremlinHelper.getGraphSchema())
+                    .then(async schema => {
+                        logger.log('info', schema, 'Graph Schema');
+
+                        metaData.features = await gremlinHelper.getFeatures();
+                        metaData.variables = await gremlinHelper.getVariables();
+                        metaData.propertyKeys = await gremlinHelper.getPropertyKeys();
+                        metaData.graphConfigurations = await gremlinHelper.getConfigurations(logger);
+
+                        metaData.schemaConstraints = Boolean(
+                            metaData.graphConfigurations.find(
+                                item =>
+                                    item.graphConfigurationKey === 'schema.constraints' &&
+                                    item.graphConfigurationValue.toString() === 'true'
+                            )
+                        );
+
+                        metaData.schemaDefault =
+                            metaData.graphConfigurations.find(
+                                item =>
+                                    item.graphConfigurationKey === 'schema.default' &&
+                                    item.graphConfigurationValue.toString() === 'true'
+                            )?.graphConfigurationValue || 'default';
+
+                        metaData.graphConfigurations = metaData.graphConfigurations.filter(item =>
+                            ![
+                                'Template_Configuration',
+                                'Created_Using_Template',
+                                'schema.constraints',
+                                'schema.default',
+                                'graph.graphname'
+                            ].includes(item.graphConfigurationKey)
+                        );
                     })
                     .then(() => gremlinHelper.getIndexes())
                     .then(({ compositeIndexes, mixedIndexes, vertexCentricIndexes }) => {
@@ -137,6 +176,7 @@ module.exports = {
                             recordSamplingSettings,
                             fieldInference,
                             propertyKeys: metaData.propertyKeys,
+                            asModelDefinitions: data.asModelDefinitions,
                         });
                     })
                     .then(relationships => {
@@ -157,6 +197,10 @@ module.exports = {
                             features: metaData.features,
                             variables: metaData.variables,
                             propertyKeys: metaData.propertyKeys,
+                            asModelDefinitions: data.asModelDefinitions,
+                            graphConfigurations: metaData.graphConfigurations,
+                            schemaConstraints: metaData.schemaConstraints,
+                            schemaDefault: metaData.schemaDefault,
                             relationshipDefinitions,
                         });
                     })
@@ -237,7 +281,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                         });
 
                         return {
-                            documents: schemaData.documentTemplate,
+                            documents: schemaData.documents,
                             schema: schemaData.schema,
                             template: schemaData.template,
                             entityLevel: entityLevelData.entityLevel,
@@ -265,6 +309,10 @@ const getNodesData = (dbName, labels, logger, data) => {
                             variables: data.variables,
                             propertyKeys: data.propertyKeys,
                             relationshipDefinitions: data.relationshipDefinitions,
+                            asModelDefinitions: data.asModelDefinitions,
+                            graphConfigurations: data.graphConfigurations,
+                            schemaConstraints: data.schemaConstraints,
+                            schemaDefault: data.schemaDefault,
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -277,7 +325,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                 if (err) {
                     reject(err);
                 } else {
-                    const sortedPackages = sortPackagesByLabels(labels, packages);
+                    const sortedPackages = sortPackagesByLabels(packages);
                     resolve(sortedPackages);
                 }
             }
@@ -285,22 +333,16 @@ const getNodesData = (dbName, labels, logger, data) => {
     });
 };
 
-const sortPackagesByLabels = (labels, packages) => {
-    return [...packages].sort((a, b) => {
-        const indexA = _.indexOf(labels, a['collectionName']);
-        const indexB = _.indexOf(labels, b['collectionName']);
-        if (_.isUndefined(indexA)) {
-            return 1;
-        }
-        if (_.isUndefined(indexB)) {
-            return -1;
-        }
+const sortPackagesByLabels = packages => _.orderBy(packages, item => item.collectionName);
 
-        return indexA - indexB;
-    });
-};
-
-const getRelationshipData = ({ schema, dbName, recordSamplingSettings, fieldInference, propertyKeys }) => {
+const getRelationshipData = ({
+    schema,
+    dbName,
+    recordSamplingSettings,
+    fieldInference,
+    propertyKeys,
+    asModelDefinitions,
+}) => {
     return new Promise((resolve, reject) => {
         async.map(
             schema,
@@ -327,7 +369,7 @@ const getRelationshipData = ({ schema, dbName, recordSamplingSettings, fieldInfe
                             level: 'entity',
                             documents,
                             validation: {
-                                jsonSchema: convertSchemaToRefs(schema),
+                                jsonSchema: asModelDefinitions ? convertSchemaToRefs(schema) : schema,
                             },
                             relationshipInfo: {
                                 biDirectional: chain.biDirectional,
@@ -371,6 +413,10 @@ const getLabelPackage = ({
     variables,
     propertyKeys,
     relationshipDefinitions,
+    asModelDefinitions,
+    graphConfigurations,
+    schemaConstraints,
+    schemaDefault,
 }) => {
     let packageData = {
         dbName,
@@ -380,7 +426,7 @@ const getLabelPackage = ({
         emptyBucket: false,
         entityLevel,
         validation: {
-            jsonSchema: convertSchemaToRefs(schema),
+            jsonSchema: asModelDefinitions ? convertSchemaToRefs(schema) : schema,
         },
         bucketInfo: {
             compositeIndexes,
@@ -388,15 +434,22 @@ const getLabelPackage = ({
             vertexCentricIndexes,
             features,
             graphVariables: variables,
-            traversalSource: dbName,
+            traversalSource: 'g',
+            graphConfigurations,
+            graphFactory: 'JanusGraphFactory',
+            useConfiguration: true,
+            schemaConstraints,
+            schemaDefault,
         },
-        modelDefinitions: {
-            properties: {
-                ...propertyKeys,
-                ...relationshipDefinitions,
-                ...clearMetaProperties(schema.properties),
+        ...(asModelDefinitions && {
+            modelDefinitions: {
+                properties: {
+                    ...propertyKeys,
+                    ...relationshipDefinitions,
+                    ...clearMetaProperties(schema.properties),
+                },
             },
-        },
+        }),
     };
 
     if (fieldInference.active === 'field') {

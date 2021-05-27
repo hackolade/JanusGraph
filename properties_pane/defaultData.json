@@ -6,10 +6,33 @@
 	},
 	"container": {
 		"name": "New graph",
-		"traversalSource": "graph",
-		"schema.default": "default",
-		"schema.constraints": true,
-		"indexes": []
+		"traversalSource": "g",
+		"indexes": [],
+		"schemaDefault": "default",
+		"graphFactory": "JanusGraphFactory",
+		"useConfiguration": true,
+		"graphConfigurations": [
+			{
+				"graphConfigurationKey": "gremlin.graph",
+				"graphConfigurationValue": "org.janusgraph.core.JanusGraphFactory"
+			},
+			{
+				"graphConfigurationKey": "storage.backend",
+				"graphConfigurationValue": "berkeleyje"
+			},
+			{
+				"graphConfigurationKey": "index.search.backend",
+				"graphConfigurationValue": "lucene"
+			},
+			{
+				"graphConfigurationKey": "storage.directory",
+				"graphConfigurationValue": "/var/lib/janusgraph/data"
+			},
+			{
+				"graphConfigurationKey": "index.search.directory",
+				"graphConfigurationValue": "/var/lib/janusgraph/index"
+			}
+		]
 	},
 	"collection": {
 		"collectionName": "New vertex",

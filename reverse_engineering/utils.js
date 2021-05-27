@@ -122,6 +122,40 @@ const prepareError = error => {
     };
 };
 
+const getDataType = rawType => {
+    switch (rawType) {
+        case 'g:List':
+            return { type: 'list' };
+        case 'g:Map':
+            return { type: 'map' };
+        case 'g:Set':
+            return { type: 'set' };
+        case 'g:Double':
+            return { type: 'number', mode: 'double' };
+        case 'g:Int32':
+            return { type: 'number', mode: 'integer' };
+        case 'g:Int64':
+            return { type: 'number', mode: 'long' };
+        case 'g:Float':
+            return { type: 'number', mode: 'float' };
+        case 'g:Date':
+            return { type: 'date' };
+        case 'g:UUID':
+            return { type: 'uuid' };
+        case 'janusgraph:Geoshape':
+            return { type: 'geoshape' };
+        case 'gx:Char':
+            return { type: 'char' };
+        case 'gx:Byte':
+            return { type: 'number', mode: 'byte' };
+        case 'gx:Int16':
+            return { type: 'number', mode: 'short' };
+        default: {
+            return { type: 'string' };
+        }
+    }
+};
+
 module.exports = {
     getKeyType,
     getTTL,
@@ -129,4 +163,5 @@ module.exports = {
     getSSLConfig,
     getListSubtypeByItemType,
     prepareError,
+    getDataType,
 };

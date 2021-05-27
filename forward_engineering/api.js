@@ -14,12 +14,11 @@ module.exports = {
             const withSamples = data.options.origin !== 'ui';
 
             const schemaScript = generateJanusGraphSchema({ ...data, app });
+            const sampleScript = generateGremlinDataSamples({ ...data, app });
 
             if (withSamples || !insertSamplesOption.value) {
-                return cb(null, schemaScript);
+                return cb(null, `${schemaScript}\n\n${sampleScript}`);
             }
-
-            const sampleScript = generateGremlinDataSamples({ ...data, app });
 
             cb(null, [
                 { title: 'JanusGraph schema', script: schemaScript },
@@ -45,7 +44,27 @@ module.exports = {
             .connect(connectionInfo, app)
             .then(() => gremlinHelper.applyToInstance(script))
             .then(() => callback())
-            .catch(error => callback(prepareError(error)));
+            .catch(error => {
+                let preparedError = prepareError(error);
+
+                if (/No such property:/.test(error.message) || /Backend shorthand unknown/.test(error.message)) {
+                    preparedError = {
+                        message: 'Graph with such name does not exists',
+                        originalMessage: error.message,
+                        stack: error.stack,
+                    };
+                } else if (/Adding this property for key(.*?)violates a uniqueness constraint/.test(error.message)) {
+                    preparedError = {
+                        message:
+                            'Graph with such constraints already exists or you use storage.directory of another graph',
+                        originalMessage: error.message,
+                        stack: error.stack,
+                    };
+                }
+
+                logger.log('error', preparedError);
+                callback(preparedError);
+            });
     },
 
     testConnection(connectionInfo, logger, callback, app) {
