@@ -9,8 +9,8 @@
 		"traversalSource": "g",
 		"indexes": [],
 		"schemaDefault": "default",
-		"graphFactory": "JanusGraphFactory",
-		"useConfiguration": true,
+		"graphFactory": "ConfiguredGraphFactory",
+		"useConfiguration": false,
 		"graphConfigurations": [
 			{
 				"graphConfigurationKey": "gremlin.graph",
