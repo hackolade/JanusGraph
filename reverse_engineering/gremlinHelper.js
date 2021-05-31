@@ -793,7 +793,7 @@ const setCurrentTraversalSource = async (graphName, logger) => {
 
 const getGraphFactory = graphName => {
     return client
-        .submit(checkGraphTraversalSourceScript(graphName))
+        .submit(checkGraphTraversalSourceScriptFromConfiguredGraphFactory(graphName))
         .then(() => 'ConfiguredGraphFactory')
         .catch(() => 'JanusGraphFactory');
 };
