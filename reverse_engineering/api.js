@@ -117,35 +117,20 @@ module.exports = {
                     .then(async schema => {
                         logger.log('info', schema, 'Graph Schema');
 
-                        metaData.features = await gremlinHelper.getFeatures();
-                        metaData.variables = await gremlinHelper.getVariables();
-                        metaData.propertyKeys = await gremlinHelper.getPropertyKeys();
-                        metaData.graphConfigurations = await gremlinHelper.getConfigurations(logger);
+                        const features = await gremlinHelper.getFeatures();
+                        const variables = await gremlinHelper.getVariables();
+                        const propertyKeys = await gremlinHelper.getPropertyKeys();
+                        const graphFactory = await gremlinHelper.getGraphFactory(dbName);
+                        const graphConfigurationData = await gremlinHelper.getConfigurations(logger);
 
-                        metaData.schemaConstraints = Boolean(
-                            metaData.graphConfigurations.find(
-                                item =>
-                                    item.graphConfigurationKey === 'schema.constraints' &&
-                                    item.graphConfigurationValue.toString() === 'true'
-                            )
-                        );
-
-                        metaData.schemaDefault =
-                            metaData.graphConfigurations.find(
-                                item =>
-                                    item.graphConfigurationKey === 'schema.default' &&
-                                    item.graphConfigurationValue.toString() === 'true'
-                            )?.graphConfigurationValue || 'default';
-
-                        metaData.graphConfigurations = metaData.graphConfigurations.filter(item =>
-                            ![
-                                'Template_Configuration',
-                                'Created_Using_Template',
-                                'schema.constraints',
-                                'schema.default',
-                                'graph.graphname'
-                            ].includes(item.graphConfigurationKey)
-                        );
+                        metaData = {
+                            ...metaData,
+                            ...graphConfigurationData,
+                            features,
+                            variables,
+                            propertyKeys,
+                            graphFactory,
+                        };
                     })
                     .then(() => gremlinHelper.getIndexes())
                     .then(({ compositeIndexes, mixedIndexes, vertexCentricIndexes }) => {
@@ -201,6 +186,7 @@ module.exports = {
                             graphConfigurations: metaData.graphConfigurations,
                             schemaConstraints: metaData.schemaConstraints,
                             schemaDefault: metaData.schemaDefault,
+                            graphFactory: metaData.graphFactory,
                             relationshipDefinitions,
                         });
                     })
@@ -300,19 +286,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                             schema,
                             template,
                             entityLevel,
-                            includeEmptyCollection: data.includeEmptyCollection,
-                            fieldInference: data.fieldInference,
-                            compositeIndexes: data.compositeIndexes,
-                            mixedIndexes: data.mixedIndexes,
-                            vertexCentricIndexes: data.vertexCentricIndexes,
-                            features: data.features,
-                            variables: data.variables,
-                            propertyKeys: data.propertyKeys,
-                            relationshipDefinitions: data.relationshipDefinitions,
-                            asModelDefinitions: data.asModelDefinitions,
-                            graphConfigurations: data.graphConfigurations,
-                            schemaConstraints: data.schemaConstraints,
-                            schemaDefault: data.schemaDefault,
+                            ...data,
                         });
                         if (packageData) {
                             packages.push(packageData);
@@ -417,6 +391,7 @@ const getLabelPackage = ({
     graphConfigurations,
     schemaConstraints,
     schemaDefault,
+    graphFactory,
 }) => {
     let packageData = {
         dbName,
@@ -436,7 +411,7 @@ const getLabelPackage = ({
             graphVariables: variables,
             traversalSource: 'g',
             graphConfigurations,
-            graphFactory: 'JanusGraphFactory',
+            graphFactory,
             useConfiguration: true,
             schemaConstraints,
             schemaDefault,

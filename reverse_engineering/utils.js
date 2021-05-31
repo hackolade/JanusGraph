@@ -156,6 +156,34 @@ const getDataType = rawType => {
     }
 };
 
+const prepareGraphConfigurations = graphConfigurations => {
+    const schemaConstraints = Boolean(
+        graphConfigurations.find(
+            item =>
+                item.graphConfigurationKey === 'schema.constraints' &&
+                item.graphConfigurationValue.toString() === 'true'
+        )
+    );
+    const schemaDefault =
+        graphConfigurations.find(
+            item =>
+                item.graphConfigurationKey === 'schema.default' && item.graphConfigurationValue.toString() === 'true'
+        )?.graphConfigurationValue || 'default';
+
+    const filteredGraphConfigurations = graphConfigurations.filter(
+        item =>
+            ![
+                'Template_Configuration',
+                'Created_Using_Template',
+                'schema.constraints',
+                'schema.default',
+                'graph.graphname',
+            ].includes(item.graphConfigurationKey)
+    );
+
+    return { schemaConstraints, schemaDefault, graphConfigurations: filteredGraphConfigurations };
+};
+
 module.exports = {
     getKeyType,
     getTTL,
@@ -164,4 +192,5 @@ module.exports = {
     getListSubtypeByItemType,
     prepareError,
     getDataType,
+    prepareGraphConfigurations,
 };

@@ -11,6 +11,7 @@ const {
     getListSubtypeByItemType,
     prepareError,
     getDataType,
+    prepareGraphConfigurations,
 } = require('./utils');
 const { getSnippet } = require('./helpers/snippetHelper');
 const {
@@ -756,13 +757,17 @@ const getGraphTraversalByGraphName = (graphName, logger) => {
 const getConfigurations = logger => {
     return client
         .submit(getGraphConfigurations(state.traversalSource))
-        .then(configs =>
-            configs.toArray().map(config => ({ graphConfigurationKey: config[0], graphConfigurationValue: config[1] }))
-        )
+        .then(configs => {
+            const configurations = configs
+                .toArray()
+                .map(config => ({ graphConfigurationKey: config[0], graphConfigurationValue: config[1] }));
+
+            return prepareGraphConfigurations(configurations);
+        })
         .catch(error => {
             logger.log('error', prepareError(error), 'Get graph config error');
 
-            return [];
+            return { schemaConstraints: true, schemaDefault: 'default', graphConfigurations: [] };
         });
 };
 
@@ -784,6 +789,13 @@ const getGraphNames = () => {
 
 const setCurrentTraversalSource = async (graphName, logger) => {
     state.traversalSource = await getGraphTraversalByGraphName(graphName, logger);
+};
+
+const getGraphFactory = graphName => {
+    return client
+        .submit(checkGraphTraversalSourceScript(graphName))
+        .then(() => 'ConfiguredGraphFactory')
+        .catch(() => 'JanusGraphFactory');
 };
 
 module.exports = {
@@ -809,4 +821,5 @@ module.exports = {
     getGraphNames,
     getGraphTraversalByGraphName,
     setCurrentTraversalSource,
+    getGraphFactory,
 };
