@@ -2,7 +2,7 @@
 	"extension": "groovy",
 	"filterName": "JanusGraph schema",
 	"namePrefix": "JanusGraph schema",
-	"hasUpdateScript": false,
+	"hasUpdateScript": true,
 	"level": {
 		"container": true,
 		"entity": false
