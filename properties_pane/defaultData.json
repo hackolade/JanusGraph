@@ -10,7 +10,8 @@
 		"indexes": [],
 		"schemaDefault": "default",
 		"graphFactory": "ConfiguredGraphFactory",
-		"useConfiguration": false,
+		"useJGFConfiguration": true,
+		"useCGFConfiguration": false,
 		"graphConfigurations": [
 			{
 				"graphConfigurationKey": "gremlin.graph",

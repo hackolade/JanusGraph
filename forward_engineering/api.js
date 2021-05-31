@@ -39,18 +39,6 @@ module.exports = {
         logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 
         const script = connectionInfo.script;
-        const graphFactory = connectionInfo.containerData[0].graphFactory;
-        const configurationEnabled = connectionInfo.containerData[0].useConfiguration;
-
-        if (!configurationEnabled && graphFactory === 'JanusGraphFactory') {
-            const error = {
-                message: 'Configuration is required to create graph with JanusGraphFactory',
-                stack: new Error().stack,
-            };
-
-            logger.log('error', error);
-            return callback(error);
-        }
 
         gremlinHelper
             .connect(connectionInfo, app)

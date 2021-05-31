@@ -21,7 +21,7 @@ const generateJanusGraphSchema = ({
     const useConfiguredGraphFactory = containerData[0]?.graphFactory === 'ConfiguredGraphFactory';
     const schemaDefault = containerData[0]?.schemaDefault;
     const schemaConstraints = containerData[0]?.schemaConstraints;
-    const useConfiguration = containerData[0]?.useConfiguration;
+    const useConfiguration = useConfiguredGraphFactory ? containerData[0]?.useCGFConfiguration : true;
     const graphName = transformToValidGremlinName(containerData[0]?.code || containerData[0]?.name || 'graph');
     const containerTraversalSource = _.get(containerData, [0, 'traversalSource'], 'g');
     const graphConfigurations = useConfiguration

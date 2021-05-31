@@ -165,9 +165,25 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Use configuration",
-				"propertyKeyword": "useConfiguration",
+				"propertyKeyword": "useJGFConfiguration",
 				"propertyTooltip": "Specify wether to create configuration.",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"dependency": {
+					"key": "graphFactory",
+					"value": "JanusGraphFactory"
+				},
+				"defaultValue": true,
+				"disabled": true
+			},
+			{
+				"propertyName": "Use configuration",
+				"propertyKeyword": "useCGFConfiguration",
+				"propertyTooltip": "Specify wether to create configuration.",
+				"propertyType": "checkbox",
+				"dependency": {
+					"key": "graphFactory",
+					"value": "ConfiguredGraphFactory"
+				}
 			},
 			{
 				"propertyName": "Schema default",
@@ -180,8 +196,26 @@ making sure that you maintain a proper JSON format.
 					"logging"
 				],
 				"dependency": {
-					"key": "useConfiguration",
-					"value": true
+					"type": "or",
+					"values": [
+						{
+							"key": "graphFactory",
+							"value": "JanusGraphFactory"
+						},
+						{
+							"type": "and",
+							"values": [
+								{
+									"key": "graphFactory",
+									"value": "ConfiguredGraphFactory"
+								},
+								{
+									"key": "useCGFConfiguration",
+									"value": true
+								}
+							]
+						}
+					]
 				}
 			},
 			{
@@ -190,8 +224,26 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Configures the schema constraints to be used by this graph. If 'schema.constraints' is set to 'true' and 'schema.default' is NOT set 'none', schema constraints are automatically created as described in the config option 'schema.default'. ",
 				"propertyType": "checkbox",
 				"dependency": {
-					"key": "useConfiguration",
-					"value": true
+					"type": "or",
+					"values": [
+						{
+							"key": "graphFactory",
+							"value": "JanusGraphFactory"
+						},
+						{
+							"type": "and",
+							"values": [
+								{
+									"key": "graphFactory",
+									"value": "ConfiguredGraphFactory"
+								},
+								{
+									"key": "useCGFConfiguration",
+									"value": true
+								}
+							]
+						}
+					]
 				}
 			},
 			{
@@ -214,8 +266,26 @@ making sure that you maintain a proper JSON format.
 					}
 				],
 				"dependency": {
-					"key": "useConfiguration",
-					"value": true
+					"type": "or",
+					"values": [
+						{
+							"key": "graphFactory",
+							"value": "JanusGraphFactory"
+						},
+						{
+							"type": "and",
+							"values": [
+								{
+									"key": "graphFactory",
+									"value": "ConfiguredGraphFactory"
+								},
+								{
+									"key": "useCGFConfiguration",
+									"value": true
+								}
+							]
+						}
+					]
 				}
 			},
 			{
