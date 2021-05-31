@@ -143,7 +143,9 @@ const getGraphCreationScriptWithConfiguredGraphFactory = ({ graphName, traversal
         getCreateGraphScript: configurationScript =>
             `${
                 _.isEmpty(graphConfigurations) ? '' : configurationScript
-            }\n${traversalSource} = ConfiguredGraphFactory.create("${graphName}").traversal();`,
+            }\n${traversalSource} = ConfiguredGraphFactory.${
+                _.isEmpty(graphConfigurations) ? 'create' : 'open'
+            }("${graphName}").traversal();`,
     });
 
 const getGraphCreationScriptWithJanusGraphFactory = ({ graphName, traversalSource, graphConfigurations = [] }) =>
