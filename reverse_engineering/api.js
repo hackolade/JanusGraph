@@ -113,10 +113,7 @@ module.exports = {
 
                 gremlinHelper
                     .setCurrentTraversalSource(dbName, logger)
-                    .then(() => gremlinHelper.getGraphSchema())
-                    .then(async schema => {
-                        logger.log('info', schema, 'Graph Schema');
-
+                    .then(async () => {
                         const features = await gremlinHelper.getFeatures();
                         const variables = await gremlinHelper.getVariables();
                         const propertyKeys = await gremlinHelper.getPropertyKeys();
