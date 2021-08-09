@@ -322,6 +322,13 @@ making sure that you maintain a proper JSON format.
 						"propertyType": "text"
 					},
 					{
+						"propertyName": "Activated",
+						"propertyKeyword": "isActivated",
+						"propertyTooltip": "Deactivated item will be not included in FE script",
+						"propertyType": "checkbox",
+						"defaultValue": true
+					},
+					{
 						"propertyName": "Key",
 						"propertyKeyword": "indexKey",
 						"propertyType": "fieldList",
@@ -372,6 +379,13 @@ making sure that you maintain a proper JSON format.
 						"propertyType": "text"
 					},
 					{
+						"propertyName": "Activated",
+						"propertyKeyword": "isActivated",
+						"propertyTooltip": "Deactivated item will be not included in FE script",
+						"propertyType": "checkbox",
+						"defaultValue": true
+					},
+					{
 						"propertyName": "Backend engine",
 						"propertyKeyword": "indexingBackend",
 						"propertyTooltip": "Each indexing backend must be uniquely identified by name in the JanusGraph configuration.",
@@ -420,6 +434,13 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "name",
 						"propertyTooltip": "The name of a graph index must be unique.",
 						"propertyType": "text"
+					},
+					{
+						"propertyName": "Activated",
+						"propertyKeyword": "isActivated",
+						"propertyTooltip": "Deactivated item will be not included in FE script",
+						"propertyType": "checkbox",
+						"defaultValue": true
 					},
 					{
 						"propertyName": "Key",

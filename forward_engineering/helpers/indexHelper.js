@@ -19,16 +19,24 @@ const generateIndexes = ({
     setDependencies(app);
 
     const compositeIndexesScript = generateCompositeIndexesScript({
+        compositeIndexes: filterInactiveIndexes(compositeIndexes),
         traversalSource,
-        compositeIndexes,
         edges,
         vertices,
         entities,
     });
-    const mixedIndexesScript = generateMixedIndexesScript(traversalSource, mixedIndexes, entities);
-    const vertexCentricIndexesScript = generateVertexCentricIndexes(traversalSource, vertexCentricIndexes, edges);
+    const mixedIndexesScript = generateMixedIndexesScript(traversalSource, filterInactiveIndexes(mixedIndexes), entities);
+    const vertexCentricIndexesScript = generateVertexCentricIndexes(traversalSource, filterInactiveIndexes(vertexCentricIndexes), edges);
 
     return [compositeIndexesScript, mixedIndexesScript, vertexCentricIndexesScript].join('\n\n');
+};
+
+const filterInactiveIndexes = (indexes) => {
+    if (!Array.isArray(indexes)) {
+        return [];
+    }
+
+    return indexes.filter(index => index.isActivated !== false);
 };
 
 const generateCompositeIndexesScript = ({ traversalSource, compositeIndexes, edges, vertices, entities }) => {
