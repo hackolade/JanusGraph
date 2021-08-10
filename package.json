@@ -1,7 +1,7 @@
 {
     "name": "JanusGraph",
-    "version": "0.1.0",
-    "versionDate": "2021-05-31",
+    "version": "0.1.1",
+    "versionDate": "2021-08-10",
     "author": "hackolade",
     "engines": {
         "hackolade": "5.1.3",
