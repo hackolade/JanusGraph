@@ -12,5 +12,6 @@
 			"inputTooltip": "Reverse-engineer property keys as model definitions with references in vertex labels",
 			"inputKeyword": "asModelDefinitions"
 		}
-	]
+	],
+	"helpUrl": "https://hackolade.com/help/ConnecttoaJanusGraphinstance.html"
 }
