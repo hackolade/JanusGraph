@@ -24,5 +24,6 @@
 		]
 	},
 	"applyScriptToInstance": true,
-	"resolvedDefinitions": true
+	"resolvedDefinitions": true,
+	"refresh": true
 }
