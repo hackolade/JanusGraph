@@ -63,7 +63,9 @@
 	"relationship": {
 		"name": "New edge",
 		"biDirectional": true,
-		"multiplicity": "MULTI"
+		"customProperties": {
+			"multiplicity": "MULTI"
+		}
 	},
 	"user": {},
 	"view": {
