@@ -13,7 +13,8 @@ const generateEdges = ({ relationships, vertices, app }) => {
 
 const getEdgeLabelScript = vertices => relationship => {
     const name = transformToValidGremlinName(relationship.name);
-    const multiplicity = relationship.multiplicity || 'MULTI';
+    
+    const multiplicity = _.get(relationship, 'customProperties.multiplicity', 'MULTI');
     const unidirectedScript = getUnidirectedScript(relationship);
     const properties = _.keys(relationship.properties).map(transformToValidGremlinName);
 
