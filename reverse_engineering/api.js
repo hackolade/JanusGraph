@@ -143,7 +143,7 @@ module.exports = {
                     .then(() => {
                         return gremlinHelper
                             .getRelationshipsLabels()
-                            .then(gremlinHelper.getRelationshipSchema(logger, getCount(10000, recordSamplingSettings)))
+                            .then(gremlinHelper.getRelationshipSchema(logger, getSampleDocSize(10000, recordSamplingSettings)))
                             .then(relationships => relationships.flatMap(relationships => relationships));
                     })
                     .then(schema => {
@@ -203,13 +203,14 @@ module.exports = {
     },
 };
 
-const getCount = (count, recordSamplingSettings) => {
-    const per = recordSamplingSettings.relative.value;
-    const size =
-        recordSamplingSettings.active === 'absolute'
-            ? recordSamplingSettings.absolute.value
-            : Math.round((count / 100) * per);
-    return size;
+const getSampleDocSize = (count, recordSamplingSettings) => {
+	if (recordSamplingSettings.active === 'absolute') {
+		return Number(recordSamplingSettings.absolute.value);
+	}
+
+	const limit = Math.ceil((count * recordSamplingSettings.relative.value) / 100);
+
+	return Math.min(limit, recordSamplingSettings.maxValue);
 };
 
 const isEmptyLabel = documents => {
@@ -245,7 +246,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                             containerName: dbName,
                             entityName: labelName,
                         });
-                        const count = getCount(quantity, data.recordSamplingSettings);
+                        const count = getSampleDocSize(quantity, data.recordSamplingSettings);
 
                         return gremlinHelper
                             .getNodes(labelName, count)
@@ -321,7 +322,7 @@ const getRelationshipData = ({
                 gremlinHelper
                     .getCountRelationshipsData(chain.start, chain.relationship, chain.end)
                     .then(quantity => {
-                        const count = getCount(quantity, recordSamplingSettings);
+                        const count = getSampleDocSize(quantity, recordSamplingSettings);
                         return gremlinHelper.getRelationshipData({
                             start: chain.start,
                             relationship: chain.relationship,
