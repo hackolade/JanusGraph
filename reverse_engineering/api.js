@@ -132,7 +132,7 @@ module.exports = {
                     .then(() => gremlinHelper.getIndexes())
                     .then(({ compositeIndexes, mixedIndexes, vertexCentricIndexes }) => {
                         logger.progress({
-                            message: `Indexes have retrieved successfully`,
+                            message: `Indexes successfully retrieved`,
                             containerName: dbName,
                             entityName: '',
                         });
@@ -273,7 +273,7 @@ const getNodesData = (dbName, labels, logger, data) => {
                     })
                     .then(({ documents, schema, template, entityLevel }) => {
                         logger.progress({
-                            message: `Data has successfully got`,
+                            message: `Data successfully retrieved`,
                             containerName: dbName,
                             entityName: labelName,
                         });
