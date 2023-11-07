@@ -1,10 +1,10 @@
 {
 	"name": "geoshape-wkt",
 	"parentType": "document",
-    "properties": [
-        {
-            "name": "WKT",
-            "type": "string"
-        }
-    ]
+	"properties": [
+		{
+			"name": "WKT",
+			"type": "string"
+		}
+	]
 }
