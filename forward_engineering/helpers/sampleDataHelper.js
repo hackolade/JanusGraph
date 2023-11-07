@@ -9,14 +9,14 @@ const generateGremlinDataSamples = ({ collections, relationships, jsonData, cont
 	const parsedRelationships = relationships.map(JSON.parse);
 
 	const variables = _.get(containerData, [0, 'graphVariables'], []);
-	const variablesScript = generateVariables(variables);
+	const variablesScript = generateVariables(variables, graphName);
 	const verticesScript = generateVertices(parsedCollections, jsonData, graphName);
 	const edgesScript = generateEdges(parsedCollections, parsedRelationships, jsonData, graphName);
 
 	return [variablesScript, verticesScript, edgesScript, `${graphName}.tx().commit();`].filter(Boolean).join('\n\n\n');
 };
 
-const generateVariables = variables => {
+const generateVariables = (variables, graphName) => {
 	return variables.reduce((script, variable) => {
 		const key = variable.graphVariableKey;
 		const value = variable.graphVariableValue || '';

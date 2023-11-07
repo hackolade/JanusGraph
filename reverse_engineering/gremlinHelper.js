@@ -491,7 +491,7 @@ const convertMetaProperty = metaPropertyMap => {
 			}
 
 			if (_.isObject(property)) {
-				return { key, values, samples };
+				return { keys, values, samples };
 			}
 
 			return { keys: [...keys, property + ''], values, samples };
@@ -772,7 +772,9 @@ const getGraphNames = () => {
 			try {
 				const graphNames = await client.submit('ConfiguredGraphFactory.getGraphNames()');
 				graphs = _.union(graphs, graphNames.toArray());
-			} catch (error) {}
+			} catch (error) {
+				return;
+			}
 		})
 		.then(() => _.uniq(graphs));
 };
