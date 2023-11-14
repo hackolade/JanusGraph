@@ -19,9 +19,7 @@
 		}
 	],
 	"splitView": {
-		"byAdditionalOptions": [
-			"INCLUDE_SAMPLES"
-		]
+		"byAdditionalOptions": ["INCLUDE_SAMPLES"]
 	},
 	"applyScriptToInstance": true,
 	"resolvedDefinitions": true,

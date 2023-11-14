@@ -1,10 +1,10 @@
 const getVertexLabelsFromSchema = traversalSource =>
-    `${traversalSource}.getGraph().openManagement().getVertexLabels().collect{label -> label.name()}`;
+	`${traversalSource}.getGraph().openManagement().getVertexLabels().collect{label -> label.name()}`;
 
 const getVertexLabelsFromData = traversalSource => `${traversalSource}. V().label().dedup().toList()`;
 
 const getEdgesDataFromData = (traversalSource, edgeLabel, limit) =>
-    `${traversalSource}.
+	`${traversalSource}.
     E().hasLabel('${edgeLabel}').
     limit(${limit}).
     collect{edgeLabel -> [
@@ -15,7 +15,7 @@ const getEdgesDataFromData = (traversalSource, edgeLabel, limit) =>
     toList()`;
 
 const getEdgeDataFromSchema = (traversalSource, edgeLabel) =>
-    `${traversalSource}.
+	`${traversalSource}.
     getGraph().
     openManagement().
     getEdgeLabel('${edgeLabel}').
@@ -33,10 +33,10 @@ const getEdgeDataFromSchema = (traversalSource, edgeLabel) =>
     toList()`;
 
 const getNodesData = (traversalSource, label, limit) =>
-    `${traversalSource}.V().hasLabel('${label}').limit(${limit}).valueMap(true).toList()`;
+	`${traversalSource}.V().hasLabel('${label}').limit(${limit}).valueMap(true).toList()`;
 
 const getRelationshipDataScript = (traversalSource, relationship, start, end, limit) =>
-    `${traversalSource}.E().hasLabel('${relationship}').where(and(
+	`${traversalSource}.E().hasLabel('${relationship}').where(and(
         outV().label().is(eq('${start}')),
         inV().label().is(eq('${end}')))
     ).limit(${limit}).valueMap(true).toList()`;
@@ -44,13 +44,13 @@ const getRelationshipDataScript = (traversalSource, relationship, start, end, li
 const getNodesCountScript = (traversalSource, label) => `${traversalSource}.V().hasLabel('${label}').count().next()`;
 
 const getRelationshipsCountScript = (traversalSource, relationship, start, end) =>
-    `${traversalSource}.E().hasLabel('${relationship}').where(and(
+	`${traversalSource}.E().hasLabel('${relationship}').where(and(
         outV().label().is(eq('${start}')),
         inV().label().is(eq('${end}')))
     ).count().next()`;
 
 const getVertexIndexes = traversalSource =>
-    `${traversalSource}.
+	`${traversalSource}.
     getGraph().
     openManagement().
     getGraphIndexes(Vertex.class).
@@ -64,7 +64,7 @@ const getVertexIndexes = traversalSource =>
     };`;
 
 const getEdgeIndexes = traversalSource =>
-    `${traversalSource}.
+	`${traversalSource}.
 	getGraph().
 	openManagement().
 	getGraphIndexes(Edge.class).
@@ -78,7 +78,7 @@ const getEdgeIndexes = traversalSource =>
     };`;
 
 const getRelationIndexes = traversalSource =>
-    `relationIndexes = [];
+	`relationIndexes = [];
 
     ${traversalSource}.
         getGraph().
@@ -104,7 +104,7 @@ const getGraphFeatures = traversalSource => `${traversalSource}.getGraph().featu
 const getGraphVariables = traversalSource => `${traversalSource}.getGraph().variables().asMap()`;
 
 const wrapInGraphSONMapperScript = query =>
-    `GraphSONMapper.
+	`GraphSONMapper.
     	build().
         typeInfo(org.apache.tinkerpop.gremlin.structure.io.graphson.TypeInfo.PARTIAL_TYPES).
         addCustomModule(org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV2d0.build().create(false)).
@@ -115,13 +115,13 @@ const wrapInGraphSONMapperScript = query =>
     	writeValueAsString(${query})`;
 
 const getDataQuery = (traversalSource, element, label, limit) =>
-    `${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`;
+	`${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`;
 
 const getTemplateData = (traversalSource, element, label, limit) =>
-    `${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).properties().key().order().dedup().toList()`
+	`${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).properties().key().order().dedup().toList()`;
 
 const getEdgeLabelsScript = traversalSource =>
-    `${traversalSource}.
+	`${traversalSource}.
     getGraph().
     openManagement().
     getRelationTypes(EdgeLabel.class).
@@ -134,7 +134,7 @@ const getEdgeLabelsScript = traversalSource =>
     ]}`;
 
 const getPropertyKeysScript = traversalSource =>
-    `${traversalSource}.
+	`${traversalSource}.
     getGraph().
     openManagement().
     getRelationTypes(PropertyKey.class).
@@ -146,7 +146,7 @@ const getPropertyKeysScript = traversalSource =>
     ]}`;
 
 const getVertexLabelDataScript = (traversalSource, label) =>
-    `vertexLabel = ${traversalSource}.
+	`vertexLabel = ${traversalSource}.
     getGraph().
     openManagement().
     getVertexLabel('${label}')
@@ -156,7 +156,7 @@ const getVertexLabelDataScript = (traversalSource, label) =>
 const getGraphSchemaScript = traversalSource => `${traversalSource}.getGraph().openManagement().printSchema()`;
 
 const getMetaPropertiesDataQuery = (traversalSource, label, limit) =>
-    `${traversalSource}.
+	`${traversalSource}.
 		V().
 		hasLabel('${label}').
 		limit(${limit}).
@@ -170,46 +170,46 @@ const getMetaPropertiesDataQuery = (traversalSource, label, limit) =>
 		toList()`;
 
 const checkGraphTraversalSourceScript = graphName =>
-    `org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraph('${graphName}').traversal().V().limit(1); 1`;
+	`org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraph('${graphName}').traversal().V().limit(1); 1`;
 
 const getGraphTraversalSourceScript = graphName =>
-    `org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraph('${graphName}').traversal()`;
+	`org.janusgraph.graphdb.management.JanusGraphManager.getInstance().getGraph('${graphName}').traversal()`;
 
 const checkGraphTraversalSourceScriptFromConfiguredGraphFactory = graphName =>
-    `ConfiguredGraphFactory.open('${graphName}').traversal().V().limit(1); 1`;
+	`ConfiguredGraphFactory.open('${graphName}').traversal().V().limit(1); 1`;
 
 const getGraphTraversalSourceScriptFromConfiguredGraphFactory = graphName =>
-    `ConfiguredGraphFactory.open('${graphName}').traversal()`;
+	`ConfiguredGraphFactory.open('${graphName}').traversal()`;
 
-const getGraphConfigurations = traversalSource => 
-    `cnfg = ${traversalSource}.getGraph().configuration();
-    cnfg.getKeys().collect{item -> [item, cnfg.getProperty(item)]}`
+const getGraphConfigurations = traversalSource =>
+	`cnfg = ${traversalSource}.getGraph().configuration();
+    cnfg.getKeys().collect{item -> [item, cnfg.getProperty(item)]}`;
 
 module.exports = {
-    getVertexLabelsFromSchema,
-    getVertexLabelsFromData,
-    getEdgesDataFromData,
-    getEdgeDataFromSchema,
-    getNodesData,
-    getRelationshipDataScript,
-    getNodesCountScript,
-    getRelationshipsCountScript,
-    getVertexIndexes,
-    getEdgeIndexes,
-    getRelationIndexes,
-    getGraphFeatures,
-    getGraphVariables,
-    wrapInGraphSONMapperScript,
-    getDataQuery,
-    getTemplateData,
-    getEdgeLabelsScript,
-    getPropertyKeysScript,
-    getVertexLabelDataScript,
-    getGraphSchemaScript,
-    getMetaPropertiesDataQuery,
-    checkGraphTraversalSourceScript,
-    getGraphTraversalSourceScript,
-    getGraphConfigurations,
-    checkGraphTraversalSourceScriptFromConfiguredGraphFactory,
-    getGraphTraversalSourceScriptFromConfiguredGraphFactory,
+	getVertexLabelsFromSchema,
+	getVertexLabelsFromData,
+	getEdgesDataFromData,
+	getEdgeDataFromSchema,
+	getNodesData,
+	getRelationshipDataScript,
+	getNodesCountScript,
+	getRelationshipsCountScript,
+	getVertexIndexes,
+	getEdgeIndexes,
+	getRelationIndexes,
+	getGraphFeatures,
+	getGraphVariables,
+	wrapInGraphSONMapperScript,
+	getDataQuery,
+	getTemplateData,
+	getEdgeLabelsScript,
+	getPropertyKeysScript,
+	getVertexLabelDataScript,
+	getGraphSchemaScript,
+	getMetaPropertiesDataQuery,
+	checkGraphTraversalSourceScript,
+	getGraphTraversalSourceScript,
+	getGraphConfigurations,
+	checkGraphTraversalSourceScriptFromConfiguredGraphFactory,
+	getGraphTraversalSourceScriptFromConfiguredGraphFactory,
 };
