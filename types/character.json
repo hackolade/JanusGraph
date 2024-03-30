@@ -2,10 +2,10 @@
 	"name": "character",
 	"erdAbbreviation": "<char>",
 	"dtdAbbreviation": "{A}",
-    "parentType": "string",
+	"parentType": "string",
 	"useSample": true,
 	"default": true,
-    "sample": "a",
+	"sample": "a",
 	"defaultValues": {
 		"primaryKey": false,
 		"enum": []

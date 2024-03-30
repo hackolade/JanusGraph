@@ -1,6 +1,6 @@
 {
     "name": "JanusGraph",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "versionDate": "2022-07-20",
     "author": "hackolade",
     "engines": {
@@ -11,15 +11,15 @@
         "target": {
             "applicationTarget": "JanusGraph",
             "title": "JanusGraph",
-			"versions": [
-			"0.5.x"
-			]
-		},
+            "versions": [
+                "0.5.x"
+            ]
+        },
         "features": {
             "jaySchemaHasRequiredPatternField": false,
             "nestedCollections": {
-                "isVirtual":true,
-                "hasMultipleParents":true
+                "isVirtual": true,
+                "hasMultipleParents": true
             },
             "graphDB": true,
             "relationships": {
@@ -27,21 +27,49 @@
                 "hasData": true
             },
             "enableForwardEngineering": {
-				"jsonDocument": true,
-				"jsonSchema": true,
-				"excel": true,
-				"plugin": true
-			},
-			"enableReverseEngineering": {
-				"jsonDocument": true,
-				"jsonSchema": true,
-				"ddl": true,
-				"xsd": true,
-				"excel": true,
-				"plugin": true 
-			}
+                "jsonDocument": true,
+                "jsonSchema": true,
+                "excel": true,
+                "plugin": true
+            },
+            "enableReverseEngineering": {
+                "jsonDocument": true,
+                "jsonSchema": true,
+                "ddl": true,
+                "xsd": true,
+                "excel": true,
+                "plugin": true
+            }
         }
     },
     "description": "Hackolade plugin for JanusGraph",
-    "disabled": false
+    "disabled": false,
+    "dependencies": {
+        "async": "3.2.5",
+        "gremlin": "3.4.3",
+        "lodash": "4.17.21"
+    },
+    "lint-staged": {
+        "*.{js,json}": "prettier --write"
+    },
+    "simple-git-hooks": {
+        "pre-commit": "npx lint-staged",
+        "pre-push": "npx eslint ."
+    },
+    "scripts": {
+        "lint": "eslint . --max-warnings=0",
+        "package": "node esbuild.package.js"
+    },
+    "devDependencies": {
+        "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
+        "esbuild": "0.19.5",
+        "esbuild-plugin-clean": "1.0.1",
+        "eslint": "8.53.0",
+        "eslint-config-prettier": "9.0.0",
+        "eslint-plugin-prettier": "5.0.1",
+        "lint-staged": "14.0.1",
+        "prettier": "3.0.3",
+        "simple-git-hooks": "2.9.0"
+    },
+    "release": true
 }
