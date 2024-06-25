@@ -45,7 +45,7 @@
     "disabled": false,
     "dependencies": {
         "async": "3.2.5",
-        "gremlin": "^3.7.2",
+        "gremlin": "3.7.2",
         "lodash": "4.17.21"
     },
     "lint-staged": {

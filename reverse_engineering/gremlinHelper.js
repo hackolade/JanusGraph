@@ -249,52 +249,53 @@ const getCountRelationshipsData = (start, relationship, end) => {
 		.then(data => data.toArray());
 };
 
-const getIndexes = () => {
-	return Promise.all([
+const getIndexes = async () => {
+	const data = await Promise.all([
 		client.submit(getVertexIndexes(state.traversalSource)),
 		client.submit(getEdgeIndexes(state.traversalSource)),
 		client.submit(getRelationIndexes(state.traversalSource)),
-	]).then(data => {
-		const vertexIndexes = data[0].toArray();
-		const edgeIndexes = data[1].toArray();
-		const vertexCentricIndexesData = data[2].toArray();
-		const indexes = vertexIndexes.concat(edgeIndexes).map(index => ({
-			name: index[0],
-			unique: index[1].unique,
-			indexingBackend: index[1].backingIndex,
-			indexKey: index[2].map(indexKey => ({ name: indexKey[0], properties: Object.fromEntries(indexKey[1]) })),
-			compositeIndex: index[1].compositeIndex,
-			mixedIndex: index[1].mixedIndex,
-		}));
-		const compositeIndexes = indexes
-			.filter(index => index.compositeIndex)
-			.map(index => ({
-				name: index.name,
-				unique: index.unique,
-				indexKey: index.indexKey.map(({ name }) => ({ name })),
-			}));
+	]);
+	const vertexIndexes = data[0].toArray();
+	const edgeIndexes = data[1].toArray();
+	const vertexCentricIndexesData = data[2].toArray();
 
-		const mixedIndexes = indexes
-			.filter(index => index.mixedIndex)
-			.map(index => ({
-				name: index.name,
-				indexingBackend: index.backingIndex,
-				indexKey: index.indexKey.map(({ name, properties }) => ({ name, type: properties.mapping })),
-			}));
+	const indexes = vertexIndexes.concat(edgeIndexes).map(index => ({
+		name: index[0],
+		unique: index[1].unique,
+		indexingBackend: index[1].backingIndex,
+		indexKey: index[2].map(indexKey => ({ name: indexKey[0], properties: Object.fromEntries(indexKey[1]) })),
+		compositeIndex: index[1].compositeIndex,
+		mixedIndex: index[1].mixedIndex,
+	}));
 
-		const vertexCentricIndexes = vertexCentricIndexesData.map(index => ({
-			name: index[0],
-			indexKey: index[6].map(keyName => ({ name: keyName, entity: index[1] })),
-			order: getKeyType(index[4]),
-			direction: index[2],
+	const compositeIndexes = indexes
+		.filter(index => index.compositeIndex)
+		.map(index => ({
+			name: index.name,
+			unique: index.unique,
+			indexKey: index.indexKey.map(({ name }) => ({ name })),
 		}));
 
-		return {
-			compositeIndexes,
-			mixedIndexes,
-			vertexCentricIndexes,
-		};
-	});
+	const mixedIndexes = indexes
+		.filter(index => index.mixedIndex)
+		.map(index => ({
+			name: index.name,
+			indexingBackend: index.backingIndex,
+			indexKey: index.indexKey.map(({ name, properties }) => ({ name, type: properties.mapping })),
+		}));
+
+	const vertexCentricIndexes = vertexCentricIndexesData.map(index => ({
+		name: index[0],
+		indexKey: index[6].map(keyName => ({ name: keyName, entity: index[1] })),
+		order: getKeyType(index[4]),
+		direction: index[2]?.elementName,
+	}));
+
+	return {
+		compositeIndexes,
+		mixedIndexes,
+		vertexCentricIndexes,
+	};
 };
 
 const getFeatures = () =>
