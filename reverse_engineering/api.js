@@ -13,7 +13,7 @@ module.exports = {
 		gremlinHelper.connect(connectionInfo, logger, sshService).then(cb, cb);
 	},
 
-	disconnect: async function (connectionInfo, cb, app) {
+	disconnect: async function (connectionInfo, logger, cb, app) {
 		const sshService = app.require('@hackolade/ssh-service');
 		await gremlinHelper.close(sshService);
 		cb();
@@ -32,11 +32,11 @@ module.exports = {
 				gremlinHelper
 					.testConnection()
 					.then(() => {
-						this.disconnect(connectionInfo, () => {}, app);
+						this.disconnect(connectionInfo, logger, () => {}, app);
 						cb();
 					})
 					.catch(error => {
-						this.disconnect(connectionInfo, () => {}, app);
+						this.disconnect(connectionInfo, logger, () => {}, app);
 						logger.log('error', prepareError(error));
 						cb({ message: 'Connection error', stack: error.stack });
 					});
