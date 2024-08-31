@@ -1,7 +1,7 @@
 {
 	"model": {
 		"modelName": "New model",
-		"dbVersion": "0.5.x",
+		"dbVersion": "1.x",
 		"dbVendor": "JanusGraph"
 	},
 	"container": {

@@ -124,9 +124,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "DB vendor",
 				"propertyType": "select",
-				"options": [
-					"JanusGraph"
-				],
+				"options": ["JanusGraph"],
 				"disabledOption": true
 			},
 			{
@@ -135,9 +133,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "DB version",
 				"propertyType": "select",
-				"options": [
-					"0.5.x"
-				],
+				"options": ["0.5.x", "0.6.x", "1.x"],
 				"disabledOption": false
 			},
 			{
@@ -163,13 +159,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "multiplicity",
 				"propertyTooltip": "Defines a constraint on all edges of this label, that is, a maximum number of edges between pairs of vertices.",
 				"propertyType": "select",
-				"options": [
-					"MULTI",
-					"SIMPLE",
-					"MANY2ONE",
-					"ONE2MANY",
-					"ONE2ONE"
-				]
+				"options": ["MULTI", "SIMPLE", "MANY2ONE", "ONE2MANY", "ONE2ONE"]
 			},
 			{
 				"propertyName": "Time-To-Live",
@@ -189,12 +179,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "TTLUnit",
 						"propertyTooltip": "Select from list of options",
 						"propertyType": "select",
-						"options": [
-							"Days",
-							"Hours",
-							"Minutes",
-							"Seconds"
-						]
+						"options": ["Days", "Hours", "Minutes", "Seconds"]
 					}
 				]
 			}

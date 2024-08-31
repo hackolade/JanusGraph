@@ -11,7 +11,9 @@
             "applicationTarget": "JanusGraph",
             "title": "JanusGraph",
             "versions": [
-                "0.5.x"
+                "0.5.x",
+                "0.6.x",
+                "1.x"
             ]
         },
         "features": {
