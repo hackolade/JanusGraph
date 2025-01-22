@@ -139,12 +139,13 @@ const getChoices = item => {
 			return choices;
 		}
 
-		return Object.assign({}, choices, {
+		return {
+			...choices,
 			[choiceType]: {
 				choice: _.get(item, choiceType, []),
 				meta: _.get(item, `${choiceType}_meta`, {}),
 			},
-		});
+		};
 	}, {});
 
 	if (_.isEmpty(choices)) {
@@ -210,19 +211,22 @@ const resolveChoices = (choices, properties) => {
 		}
 
 		if (_.isUndefined(choicePropertiesIndex) || Object.keys(sortedProperties).length <= choicePropertiesIndex) {
-			return Object.assign({}, sortedProperties, choiceProperties);
+			return { ...sortedProperties, ...choiceProperties };
 		}
 
 		return Object.keys(sortedProperties).reduce((result, propertyKey, index) => {
 			if (index !== choicePropertiesIndex) {
-				return Object.assign({}, result, {
+				return {
+					...result,
 					[propertyKey]: sortedProperties[propertyKey],
-				});
+				};
 			}
 
-			return Object.assign({}, result, choiceProperties, {
+			return {
+				...result,
+				...choiceProperties,
 				[propertyKey]: sortedProperties[propertyKey],
-			});
+			};
 		}, {});
 	}, properties || {});
 };
