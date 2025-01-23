@@ -236,7 +236,7 @@ const isEmptyLabel = documents => {
 };
 
 const getTemplate = (documents, rootTemplateArray = []) => {
-	const template = rootTemplateArray.reduce((template, key) => Object.assign({}, template, { [key]: {} }), {});
+	const template = rootTemplateArray.reduce((template, key) => ({ ...template, [key]: {} }), {});
 
 	if (!_.isArray(documents)) {
 		return template;
@@ -247,7 +247,7 @@ const getTemplate = (documents, rootTemplateArray = []) => {
 
 const getNodesData = (dbName, labels, logger, data) => {
 	return new Promise((resolve, reject) => {
-		let packages = [];
+		const packages = [];
 		async.map(
 			labels,
 			(labelName, nextLabel) => {

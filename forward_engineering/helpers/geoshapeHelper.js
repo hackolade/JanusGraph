@@ -1,10 +1,7 @@
+const _ = require('lodash');
 const { DEFAULT_INDENT, NEW_LINE_DOUBLE_INDENT } = require('./common');
 
-let _ = null;
-const setDependencies = dependencies => (_ = dependencies.lodash);
-
 const getGeoshapeSample = (field, dependencies) => {
-	setDependencies(dependencies);
 	switch (field.subType) {
 		case 'point':
 			return getPoint(field);

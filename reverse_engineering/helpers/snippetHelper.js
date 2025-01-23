@@ -189,9 +189,10 @@ const groupPropertiesForMap = properties => {
 	);
 
 	return keys.reduce((properties, key, index) => {
-		return Object.assign({}, properties, {
+		return {
+			...properties,
 			[key]: values[index] || {},
-		});
+		};
 	}, {});
 };
 
