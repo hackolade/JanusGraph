@@ -93,7 +93,7 @@ const connect = async (info, logger, sshService) => {
 
 const connectToInstance = (info, logger) => {
 	return new Promise((resolve, reject) => {
-		const host = info.host;
+		const host = info.escapedHostForUrl;
 		const port = info.port;
 		const username = info.username;
 		const password = info.password;
@@ -107,14 +107,13 @@ const connectToInstance = (info, logger) => {
 
 		client = new gremlin.driver.Client(
 			`${protocol}://${host}:${port}/gremlin`,
-			Object.assign(
-				{
-					pongTimeout: info.queryRequestTimeout,
-					pingTimeout: info.queryRequestTimeout,
-					authenticator,
-				},
-				sslOptions,
-			),
+
+			{
+				pongTimeout: info.queryRequestTimeout,
+				pingTimeout: info.queryRequestTimeout,
+				authenticator,
+				...sslOptions,
+			},
 		);
 
 		client
