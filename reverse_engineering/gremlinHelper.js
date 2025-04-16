@@ -58,16 +58,14 @@ const getSshConfig = info => {
 	};
 
 	if (info.ssh_method === 'privateKey') {
-		return Object.assign({}, config, {
+		return {
+			...config,
 			sshAuthMethod: 'IDENTITY_FILE',
 			sshTunnelIdentityFile: fs.readFileSync(info.ssh_key_file),
 			sshTunnelPassphrase: info.ssh_key_passphrase,
-		});
+		};
 	} else {
-		return Object.assign({}, config, {
-			sshAuthMethod: 'USER_PASSWORD',
-			sshTunnelPassword: info.ssh_password,
-		});
+		return { ...config, sshAuthMethod: 'USER_PASSWORD', sshTunnelPassword: info.ssh_password };
 	}
 };
 
@@ -93,7 +91,7 @@ const connect = async (info, logger, sshService) => {
 
 const connectToInstance = (info, logger) => {
 	return new Promise((resolve, reject) => {
-		const host = info.escapedHostForUrl;
+		const host = (info.ssh && info.escapedHostForUrl) || info.host;
 		const port = info.port;
 		const username = info.username;
 		const password = info.password;
