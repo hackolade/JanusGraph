@@ -115,6 +115,17 @@ const wrapInGraphSONMapperScript = query =>
     	createMapper().
     	writeValueAsString(${query})`;
 
+const wrapInGraphSONMapperV2Script = query =>
+	`GraphSONMapper.
+                build().
+                typeInfo(org.apache.tinkerpop.gremlin.structure.io.graphson.TypeInfo.PARTIAL_TYPES).
+                addCustomModule(org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV2d0.build().create(false)).
+                version(GraphSONVersion.V3_0).
+                addRegistry(JanusGraphIoRegistry.instance()).
+                create().
+                createMapper().
+                writeValueAsString(${query})`;
+
 const getDataQuery = (traversalSource, element, label, limit) =>
 	`${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`;
 
@@ -201,6 +212,7 @@ module.exports = {
 	getGraphFeatures,
 	getGraphVariables,
 	wrapInGraphSONMapperScript,
+	wrapInGraphSONMapperV2Script,
 	getDataQuery,
 	getTemplateData,
 	getEdgeLabelsScript,

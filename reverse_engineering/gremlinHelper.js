@@ -27,6 +27,7 @@ const {
 	getGraphFeatures,
 	getGraphVariables,
 	wrapInGraphSONMapperScript,
+	wrapInGraphSONMapperV2Script,
 	getDataQuery,
 	getTemplateData,
 	getEdgeLabelsScript,
@@ -252,6 +253,7 @@ const getIndexes = async () => {
 		client.submit(getEdgeIndexes(state.traversalSource)),
 		client.submit(getRelationIndexes(state.traversalSource)),
 	]);
+
 	const vertexIndexes = data[0].toArray();
 	const edgeIndexes = data[1].toArray();
 	const vertexCentricIndexesData = data[2].toArray();
@@ -560,15 +562,22 @@ const addMetaProperties = (schema, metaProperties) => {
 	});
 };
 
-const submitGraphSONDataScript = query => client.submit(wrapInGraphSONMapperScript(query));
+const submitGraphSONDataScript = async query => {
+	try {
+		return await client.submit(wrapInGraphSONMapperScript(query));
+	} catch (e) {
+		console.error('failed to execute GraphSONXModuleV3 mapper for query, trying to use legacy V2', query);
 
-const getMetaPropertiesData = (element, label, limit) => {
+		return await client.submit(wrapInGraphSONMapperV2Script(query));
+	}
+};
+
+const getMetaPropertiesData = async (element, label, limit) => {
 	if (element !== 'V') {
 		return Promise.resolve({
 			first: () => ({}),
 		});
 	}
-
 	return submitGraphSONDataScript(getMetaPropertiesDataQuery(state.traversalSource, label, limit));
 };
 
