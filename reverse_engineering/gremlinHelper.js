@@ -565,8 +565,8 @@ const addMetaProperties = (schema, metaProperties) => {
 const submitGraphSONDataScript = async query => {
 	try {
 		return await client.submit(wrapInGraphSONMapperScript(query));
-	} catch (e) {
-		//failed to execute GraphSONXModuleV3 mapper for query, trying to use legacy V2', query
+	} catch (_) {
+		//failed to execute GraphSONXModuleV3 mapper for query, trying to use legacy V2
 
 		return await client.submit(wrapInGraphSONMapperV2Script(query));
 	}
