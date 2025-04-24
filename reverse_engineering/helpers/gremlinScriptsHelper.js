@@ -20,11 +20,11 @@ const getEdgeDataFromSchema = (traversalSource, edgeLabel) =>
     openManagement().
     getEdgeLabel('${edgeLabel}').
     mappedConnections().
-    inject([]) {accumulator, connection -> 
-        def currentConnection = [ 
-            "relationship": '${edgeLabel}', 
-            "start": connection.getOutgoingVertexLabel().name(), 
-            "end": connection.getIncomingVertexLabel().name() 
+    inject([]) {accumulator, connection ->
+        def currentConnection = [
+            "relationship": '${edgeLabel}',
+            "start": connection.getOutgoingVertexLabel().name(),
+            "end": connection.getIncomingVertexLabel().name()
         ]
         def temp = accumulator.findAll {it -> it.start == currentConnection.start && it.end == currentConnection.end }.size
         temp == 0 ? accumulator.add(currentConnection) : accumulator
@@ -54,11 +54,11 @@ const getVertexIndexes = traversalSource =>
     getGraph().
     openManagement().
     getGraphIndexes(Vertex.class).
-    collect{element -> 
-        [element.name(), 
-            element, 
-            element.getFieldKeys().collect{field -> 
-                [field.name(),element.getParametersFor(field).collect{i -> [i.key(), i.value().toString()]}] 
+    collect{element ->
+        [element.name(),
+            element,
+            element.getFieldKeys().collect{field ->
+                [field.name(),element.getParametersFor(field).collect{i -> [i.key(), i.value().toString()]}]
             }
         ]
     };`;
@@ -68,11 +68,11 @@ const getEdgeIndexes = traversalSource =>
 	getGraph().
 	openManagement().
 	getGraphIndexes(Edge.class).
-    collect{element -> 
-        [element.name(), 
-            element, 
-            element.getFieldKeys().collect{field -> 
-                [field.name(),element.getParametersFor(field).collect{i -> [i.key(), i.value().toString()]}] 
+    collect{element ->
+        [element.name(),
+            element,
+            element.getFieldKeys().collect{field ->
+                [field.name(),element.getParametersFor(field).collect{i -> [i.key(), i.value().toString()]}]
             }
         ]
     };`;
@@ -89,12 +89,12 @@ const getRelationIndexes = traversalSource =>
     relationIndexes.
         findAll{item -> item.size() > 0}.
         inject([]){ temp, val -> temp.plus(val)}.
-        collect{ri -> 
-            [ri.name(), 
-                ri.getType().name(), 
-                ri.getDirection(), 
+        collect{ri ->
+            [ri.name(),
+                ri.getType().name(),
+                ri.getDirection(),
                 ri.getSortKey()[0].name(),
-                ri.getSortOrder(), 
+                ri.getSortOrder(),
                 ri.getIndexStatus().name(),
                 ri.getSortKey().collect{key -> key.name()}
             ]
@@ -103,16 +103,28 @@ const getRelationIndexes = traversalSource =>
 const getGraphFeatures = traversalSource => `${traversalSource}.getGraph().features()`;
 const getGraphVariables = traversalSource => `${traversalSource}.getGraph().variables().asMap()`;
 
+//https://tinkerpop.apache.org/javadocs/current/full/org/apache/tinkerpop/gremlin/structure/io/graphson/GraphSONXModuleV3.html#build()
 const wrapInGraphSONMapperScript = query =>
 	`GraphSONMapper.
     	build().
         typeInfo(org.apache.tinkerpop.gremlin.structure.io.graphson.TypeInfo.PARTIAL_TYPES).
-        addCustomModule(org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV2d0.build().create(false)).
+        addCustomModule(org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV3.build()).
     	version(GraphSONVersion.V3_0).
     	addRegistry(JanusGraphIoRegistry.instance()).
     	create().
     	createMapper().
     	writeValueAsString(${query})`;
+
+const wrapInGraphSONMapperV2Script = query =>
+	`GraphSONMapper.
+                build().
+                typeInfo(org.apache.tinkerpop.gremlin.structure.io.graphson.TypeInfo.PARTIAL_TYPES).
+                addCustomModule(org.apache.tinkerpop.gremlin.structure.io.graphson.GraphSONXModuleV2d0.build().create(false)).
+                version(GraphSONVersion.V3_0).
+                addRegistry(JanusGraphIoRegistry.instance()).
+                create().
+                createMapper().
+                writeValueAsString(${query})`;
 
 const getDataQuery = (traversalSource, element, label, limit) =>
 	`${traversalSource}.${element}().hasLabel('${label}').limit(${limit}).valueMap().toList()`;
@@ -200,6 +212,7 @@ module.exports = {
 	getGraphFeatures,
 	getGraphVariables,
 	wrapInGraphSONMapperScript,
+	wrapInGraphSONMapperV2Script,
 	getDataQuery,
 	getTemplateData,
 	getEdgeLabelsScript,
