@@ -566,7 +566,7 @@ const submitGraphSONDataScript = async query => {
 	try {
 		return await client.submit(wrapInGraphSONMapperScript(query));
 	} catch (e) {
-		console.error('failed to execute GraphSONXModuleV3 mapper for query, trying to use legacy V2', query);
+		//failed to execute GraphSONXModuleV3 mapper for query, trying to use legacy V2', query
 
 		return await client.submit(wrapInGraphSONMapperV2Script(query));
 	}
