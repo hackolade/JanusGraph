@@ -8,10 +8,6 @@ module.exports = {
 
 	applyToInstance(connectionInfo, logger, callback, app) {
 		const sshService = app.require('@hackolade/ssh-service');
-
-		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-
 		const script = connectionInfo.script;
 
 		gremlinHelper
