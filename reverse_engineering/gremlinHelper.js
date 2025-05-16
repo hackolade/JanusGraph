@@ -41,6 +41,7 @@ const {
 	getGraphTraversalSourceScriptFromConfiguredGraphFactory,
 	checkGraphTraversalSourceScriptFromConfiguredGraphFactory,
 } = require('./helpers/gremlinScriptsHelper');
+const { escapeV6IpForURL } = require('./helpers/escapeV6IPForURL');
 
 let sshTunnel;
 let client;
@@ -92,7 +93,7 @@ const connect = async (info, logger, sshService) => {
 
 const connectToInstance = (info, logger) => {
 	return new Promise((resolve, reject) => {
-		const host = (info.ssh && info.escapedHostForUrl) || info.host;
+		const host = (info.ssh && info.escapedHostForUrl) || escapeV6IpForURL({ host: info.host });
 		const port = info.port;
 		const username = info.username;
 		const password = info.password;
