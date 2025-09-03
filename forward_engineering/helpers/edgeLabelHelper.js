@@ -1,14 +1,14 @@
-const { transformToValidGremlinName, getTTlScript, getItemPropertyKeys } = require('./common');
+const { transformToValidGremlinName, getTTlScript, getItemPropertyKeys, getEdgeName } = require('./common');
 const _ = require('lodash');
 
 const generateEdges = ({ relationships, vertices }) => {
-	return _.uniqBy(relationships, relationship => relationship.name)
+	return _.uniqBy(relationships, relationship => getEdgeName(relationship))
 		.map(getEdgeLabelScript(vertices))
 		.join('\n\n');
 };
 
 const getEdgeLabelScript = vertices => relationship => {
-	const name = transformToValidGremlinName(relationship.name);
+	const name = transformToValidGremlinName(getEdgeName(relationship));
 
 	const multiplicity = _.get(relationship, 'customProperties.multiplicity', 'MULTI');
 	const unidirectedScript = getUnidirectedScript(relationship);
