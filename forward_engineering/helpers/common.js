@@ -55,12 +55,15 @@ const getItemPropertyKeys = (itemName, properties = []) =>
 
 const getPropertyKeyGetScript = propertyName => `${propertyName} = mgmt.getPropertyKey('${propertyName}')`;
 
+const getEdgeName = relationship => relationship.code || relationship.name;
+
 module.exports = {
 	transformToValidGremlinName,
 	setInManagement,
 	getTTlScript,
 	getItemPropertyKeys,
 	getPropertyKeyGetScript,
+	getEdgeName,
 	DEFAULT_INDENT,
 	NEW_LINE_DOUBLE_INDENT,
 };

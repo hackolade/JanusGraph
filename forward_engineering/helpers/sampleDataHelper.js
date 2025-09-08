@@ -1,4 +1,4 @@
-const { transformToValidGremlinName, DEFAULT_INDENT } = require('./common');
+const { transformToValidGremlinName, DEFAULT_INDENT, getEdgeName } = require('./common');
 const { getGeoshapeSample } = require('./geoshapeHelper');
 const _ = require('lodash');
 
@@ -59,7 +59,7 @@ const generateVertices = (collections, jsonData, graphName) => {
 };
 
 const generateEdge = (from, to, relationship, edgeData, graphName) => {
-	const edgeName = transformToValidGremlinName(relationship.name);
+	const edgeName = transformToValidGremlinName(getEdgeName(relationship));
 	const propertiesScript = addPropertiesScript(relationship, edgeData, edgeName);
 
 	return `${edgeName} = ${from}.\n${DEFAULT_INDENT}addEdge(${JSON.stringify(edgeName)}, ${to});${propertiesScript}`;
